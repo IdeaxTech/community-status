@@ -18,8 +18,8 @@ export function MainPage() {
         <h1 className="text-2xl font-bold">もくもく会 現地状況</h1>
         <div className="mt-3 rounded-lg bg-blue-50 border border-blue-200 p-4 text-sm space-y-1">
           <p className="font-semibold">📅 定期開催</p>
-          <p>毎週土曜日 13:00〜18:00</p>
-          <p className="text-gray-600">会場: コミュニティスペース（詳細は Discord #general 参照）</p>
+          <p>毎週木曜日 13:00〜20:00</p>
+          <p className="text-gray-600">会場: タワー五階 M-Studio（詳細は Discord #もくもく会 参照）</p>
         </div>
       </header>
 
