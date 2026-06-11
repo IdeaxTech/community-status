@@ -26,6 +26,13 @@ function initSchema(database: Database.Database): void {
       discord_name TEXT NOT NULL UNIQUE,
       date TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS calendar_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      date TEXT NOT NULL,
+      title TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 }
 
@@ -76,4 +83,22 @@ export function removeCheckin(discordName: string): void {
   getDb()
     .prepare("DELETE FROM checkins WHERE discord_name = ?")
     .run(discordName);
+}
+
+export function getCalendarEvents(
+  year: number,
+  month: number
+): { id: number; date: string; title: string }[] {
+  const prefix = `${String(year)}-${String(month).padStart(2, "0")}`;
+  return getDb()
+    .prepare(
+      "SELECT id, date, title FROM calendar_events WHERE date LIKE ? ORDER BY date ASC, id ASC"
+    )
+    .all(`${prefix}-%`) as { id: number; date: string; title: string }[];
+}
+
+export function addCalendarEvent(date: string, title: string): void {
+  getDb()
+    .prepare("INSERT INTO calendar_events (date, title) VALUES (?, ?)")
+    .run(date, title);
 }
