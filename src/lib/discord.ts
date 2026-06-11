@@ -10,6 +10,8 @@ export async function sendAnnouncement(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       content: `📢 **会場状況のお知らせ**\n${content}\n\n現在の参加人数: **${attendeeCount}人**`,
+      // Prevent @everyone / @here / role mentions from being resolved
+      allowed_mentions: { parse: [] },
     }),
   });
 }

@@ -14,6 +14,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
   addAnnouncement(content);
   const count = getCheckins().length;
-  await sendAnnouncement(content, count);
+  // Fire-and-forget: Discord failure must not roll back or error the API response
+  void sendAnnouncement(content, count).catch(() => undefined);
   return NextResponse.json({ ok: true });
 }

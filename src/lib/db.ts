@@ -30,11 +30,15 @@ function initSchema(database: Database.Database): void {
 }
 
 function todayJst(): string {
-  return new Date(
-    new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" })
-  )
-    .toISOString()
-    .slice(0, 10);
+  // Intl.DateTimeFormat gives JST date parts regardless of host TZ
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
 export function getAnnouncements(): { id: number; content: string; created_at: string }[] {
