@@ -5,7 +5,7 @@
 「現地に行かないと誰がいるか・会場が使えるかわからない」問題を、認証不要のチェックイン・お知らせ投稿と Discord Incoming Webhook 通知で解消する。
 
 要件詳細: [`requirements.md`](./requirements.md)
-最新プラン: [`docs/plans/active/2026-06-14-ui-redesign.md`](./docs/plans/active/2026-06-14-ui-redesign.md)
+最新プラン: [`docs/plans/active/2026-06-14-liquid-glass-ui.md`](./docs/plans/active/2026-06-14-liquid-glass-ui.md)
 
 ## 機能
 
@@ -24,7 +24,7 @@
 
 - **フレームワーク**: Next.js 15（App Router）+ React 19
 - **言語**: TypeScript（`strict: true`）
-- **スタイル**: Tailwind CSS（ライト/ダーク両対応の CSS 変数テーマ、`prefers-color-scheme` で自動切替）
+- **スタイル**: Tailwind CSS + Liquid Glass デザイントークン（`src/app/globals.css` の `--bg` / `--bg-from` / `--bg-to` / `--glass` / `--glass-high` / `--glass-border` / `--card` / `--border` / `--text` / `--muted` CSS 変数、`.card` ユーティリティで `backdrop-filter: blur(24px) saturate(180%)` を適用、`prefers-color-scheme` でライト/ダーク自動切替、`prefers-reduced-motion` で `iridescent` / `glow-pulse` アニメーションを抑制）
 - **フォント**: `next/font/google` でセルフホストする Inter（外部 `@import` ではなくビルド時取り込み）
 - **永続化**: SQLite（`better-sqlite3`、WAL モード）
 - **通知**: Discord Incoming Webhook（`fetch` で直接 POST）+ クライアント側トースト（`useToast` / `Toaster`）

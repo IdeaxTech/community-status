@@ -165,10 +165,8 @@ export function CalendarView() {
     return acc;
   }, {});
 
-  const inputBase = [
-    "w-full text-xs rounded px-1 py-0.5 border outline-none focus:border-blue-500",
-  ].join(" ");
-  const inputStyle = { background: "var(--bg)", borderColor: "var(--border)", color: "var(--text)" };
+  const inputBase = "w-full text-xs rounded px-1.5 py-1.5 border outline-none focus:border-blue-500 min-h-[36px]";
+  const inputStyle = { background: "var(--glass)", borderColor: "var(--glass-border)", color: "var(--text)" };
 
   return (
     <div className="card p-6 space-y-4">
@@ -216,7 +214,7 @@ export function CalendarView() {
         style={{ background: "var(--border)" }}
       >
         {grid.map((day, i) => {
-          if (!day) return <div key={i} className="min-h-14" style={{ background: "var(--bg)" }} />;
+          if (!day) return <div key={i} className="min-h-[64px] sm:min-h-[72px]" style={{ background: "var(--bg)" }} />;
 
           const dateStr = toDateStr(year, month, day);
           const isThu = thursdayDays.includes(day);
@@ -228,7 +226,7 @@ export function CalendarView() {
           return (
             <div
               key={i}
-              className={`min-h-14 p-1 transition-colors duration-150 cursor-pointer
+              className={`min-h-[64px] sm:min-h-[72px] p-1 sm:p-1.5 transition-colors duration-150 cursor-pointer
                 ${isThu ? "bg-amber-500/10 hover:bg-amber-500/20" : "hover:bg-slate-500/10"}`}
               style={isThu ? undefined : { background: "var(--card)" }}
               onClick={() => {
@@ -238,14 +236,14 @@ export function CalendarView() {
               }}
             >
               <span
-                className={`text-xs font-medium ${dayColor}`}
+                className={`text-[11px] sm:text-xs font-semibold ${dayColor}`}
                 style={dayColor ? undefined : { color: "var(--text)" }}
               >
                 {day}
               </span>
 
               {isThu && (
-                <p className="text-xs text-amber-500 leading-tight mt-0.5 break-words">
+                <p className="text-[9px] sm:text-[10px] text-amber-500 leading-tight mt-0.5 break-words">
                   {MOKUMOKU_LABEL}
                 </p>
               )}
@@ -298,7 +296,7 @@ export function CalendarView() {
                     </div>
                   ) : (
                     /* イベント表示 */
-                    <p className="text-xs text-blue-400 leading-tight mt-0.5 break-words hover:underline">
+                    <p className="text-[10px] sm:text-xs text-blue-400 leading-tight mt-0.5 break-words hover:underline line-clamp-2">
                       {formatEvent(e)}
                     </p>
                   )}
