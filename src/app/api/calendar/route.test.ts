@@ -20,29 +20,31 @@ let tmpDir: string;
 beforeEach(() => {
   vi.resetModules();
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "cs-calendar-"));
-  process.env.DB_PATH = path.join(tmpDir, "test.db");
+  process.env.TURSO_DATABASE_URL = `file:${path.join(tmpDir, "test.db")}`;
+  delete process.env.TURSO_AUTH_TOKEN;
 });
 
 afterEach(() => {
-  delete process.env.DB_PATH;
+  delete process.env.TURSO_DATABASE_URL;
+  delete process.env.TURSO_AUTH_TOKEN;
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
 describe("GET /api/calendar", () => {
   it("returns [] when no events exist for the requested month", async () => {
     const { GET } = await import("./route");
-    const res = GET(makeGetRequest({ year: "2026", month: "6" }));
+    const res = await GET(makeGetRequest({ year: "2026", month: "6" }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual([]);
   });
 
   it("returns events with time field", async () => {
     const { addCalendarEvent } = await import("@/lib/db");
-    addCalendarEvent("2026-06-04", "もくもく会", "13:00");
-    addCalendarEvent("2026-06-11", "勉強会");
+    await addCalendarEvent("2026-06-04", "もくもく会", "13:00");
+    await addCalendarEvent("2026-06-11", "勉強会");
 
     const { GET } = await import("./route");
-    const rows = (await GET(makeGetRequest({ year: "2026", month: "6" })).json()) as {
+    const rows = (await (await GET(makeGetRequest({ year: "2026", month: "6" }))).json()) as {
       date: string; title: string; time: string | null;
     }[];
     expect(rows[0]).toEqual(expect.objectContaining({ date: "2026-06-04", title: "もくもく会", time: "13:00" }));
@@ -51,75 +53,75 @@ describe("GET /api/calendar", () => {
 
   it("orders events by time ASC within the same date (null first)", async () => {
     const { addCalendarEvent } = await import("@/lib/db");
-    addCalendarEvent("2026-06-11", "夜", "20:00");
-    addCalendarEvent("2026-06-11", "朝", "09:00");
-    addCalendarEvent("2026-06-11", "時間なし");
+    await addCalendarEvent("2026-06-11", "夜", "20:00");
+    await addCalendarEvent("2026-06-11", "朝", "09:00");
+    await addCalendarEvent("2026-06-11", "時間なし");
 
     const { GET } = await import("./route");
-    const rows = (await GET(makeGetRequest({ year: "2026", month: "6" })).json()) as { title: string }[];
+    const rows = (await (await GET(makeGetRequest({ year: "2026", month: "6" }))).json()) as { title: string }[];
     expect(rows.map((r) => r.title)).toEqual(["時間なし", "朝", "夜"]);
   });
 
   it("ignores events outside the requested month (month boundary)", async () => {
     const { addCalendarEvent } = await import("@/lib/db");
-    addCalendarEvent("2026-05-31", "May");
-    addCalendarEvent("2026-06-01", "June first");
-    addCalendarEvent("2026-06-30", "June last");
-    addCalendarEvent("2026-07-01", "July");
+    await addCalendarEvent("2026-05-31", "May");
+    await addCalendarEvent("2026-06-01", "June first");
+    await addCalendarEvent("2026-06-30", "June last");
+    await addCalendarEvent("2026-07-01", "July");
 
     const { GET } = await import("./route");
-    const rows = (await GET(makeGetRequest({ year: "2026", month: "6" })).json()) as { date: string }[];
+    const rows = (await (await GET(makeGetRequest({ year: "2026", month: "6" }))).json()) as { date: string }[];
     expect(rows.map((r) => r.date)).toEqual(["2026-06-01", "2026-06-30"]);
   });
 
   it("returns leap-day events when querying February of a leap year", async () => {
     const { addCalendarEvent } = await import("@/lib/db");
-    addCalendarEvent("2024-02-29", "leap");
+    await addCalendarEvent("2024-02-29", "leap");
     const { GET } = await import("./route");
-    const rows = (await GET(makeGetRequest({ year: "2024", month: "2" })).json()) as { date: string; title: string }[];
+    const rows = (await (await GET(makeGetRequest({ year: "2024", month: "2" }))).json()) as { date: string; title: string }[];
     expect(rows).toEqual([expect.objectContaining({ date: "2024-02-29", title: "leap" })]);
   });
 
   it("400 when year is missing", async () => {
     const { GET } = await import("./route");
-    const res = GET(makeGetRequest({ month: "6" }));
+    const res = await GET(makeGetRequest({ month: "6" }));
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: "valid year and month are required" });
   });
 
   it("400 when month is missing", async () => {
     const { GET } = await import("./route");
-    expect(GET(makeGetRequest({ year: "2026" })).status).toBe(400);
+    expect((await GET(makeGetRequest({ year: "2026" }))).status).toBe(400);
   });
 
   it("400 when month is 0 (below range)", async () => {
     const { GET } = await import("./route");
-    expect(GET(makeGetRequest({ year: "2026", month: "0" })).status).toBe(400);
+    expect((await GET(makeGetRequest({ year: "2026", month: "0" }))).status).toBe(400);
   });
 
   it("400 when month is 13 (above range)", async () => {
     const { GET } = await import("./route");
-    expect(GET(makeGetRequest({ year: "2026", month: "13" })).status).toBe(400);
+    expect((await GET(makeGetRequest({ year: "2026", month: "13" }))).status).toBe(400);
   });
 
   it("400 when year is not numeric", async () => {
     const { GET } = await import("./route");
-    expect(GET(makeGetRequest({ year: "abc", month: "6" })).status).toBe(400);
+    expect((await GET(makeGetRequest({ year: "abc", month: "6" }))).status).toBe(400);
   });
 
   it("400 when month is not numeric", async () => {
     const { GET } = await import("./route");
-    expect(GET(makeGetRequest({ year: "2026", month: "xyz" })).status).toBe(400);
+    expect((await GET(makeGetRequest({ year: "2026", month: "xyz" }))).status).toBe(400);
   });
 
   it("accepts month=1 (lower boundary)", async () => {
     const { GET } = await import("./route");
-    expect(GET(makeGetRequest({ year: "2026", month: "1" })).status).toBe(200);
+    expect((await GET(makeGetRequest({ year: "2026", month: "1" }))).status).toBe(200);
   });
 
   it("accepts month=12 (upper boundary)", async () => {
     const { GET } = await import("./route");
-    expect(GET(makeGetRequest({ year: "2026", month: "12" })).status).toBe(200);
+    expect((await GET(makeGetRequest({ year: "2026", month: "12" }))).status).toBe(200);
   });
 });
 
@@ -130,7 +132,7 @@ describe("POST /api/calendar", () => {
     const res = await POST(makeRequest({ date: "2026-06-11", title: "もくもく会" }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
-    const rows = getCalendarEvents(2026, 6);
+    const rows = await getCalendarEvents(2026, 6);
     expect(rows[0]).toEqual(expect.objectContaining({ date: "2026-06-11", title: "もくもく会", time: null }));
   });
 
@@ -138,28 +140,28 @@ describe("POST /api/calendar", () => {
     const { POST } = await import("./route");
     const { getCalendarEvents } = await import("@/lib/db");
     await POST(makeRequest({ date: "2026-06-11", title: "もくもく会", time: "13:00" }));
-    expect(getCalendarEvents(2026, 6)[0].time).toBe("13:00");
+    expect((await getCalendarEvents(2026, 6))[0].time).toBe("13:00");
   });
 
   it("trims surrounding whitespace from title before persisting", async () => {
     const { POST } = await import("./route");
     const { getCalendarEvents } = await import("@/lib/db");
     await POST(makeRequest({ date: "2026-06-11", title: "   padded   " }));
-    expect(getCalendarEvents(2026, 6)[0].title).toBe("padded");
+    expect((await getCalendarEvents(2026, 6))[0].title).toBe("padded");
   });
 
   it("trims surrounding whitespace from date before validating", async () => {
     const { POST } = await import("./route");
     const { getCalendarEvents } = await import("@/lib/db");
     await POST(makeRequest({ date: "  2026-06-11  ", title: "hi" }));
-    expect(getCalendarEvents(2026, 6)[0].date).toBe("2026-06-11");
+    expect((await getCalendarEvents(2026, 6))[0].date).toBe("2026-06-11");
   });
 
   it("truncates title to 100 chars (spam guard)", async () => {
     const { POST } = await import("./route");
     const { getCalendarEvents } = await import("@/lib/db");
     await POST(makeRequest({ date: "2026-06-11", title: "a".repeat(250) }));
-    expect(getCalendarEvents(2026, 6)[0].title).toHaveLength(100);
+    expect((await getCalendarEvents(2026, 6))[0].title).toHaveLength(100);
   });
 
   it("400 on empty title", async () => {
@@ -252,21 +254,21 @@ describe("POST /api/calendar", () => {
     const { POST } = await import("./route");
     const { getCalendarEvents } = await import("@/lib/db");
     await POST(makeRequest({ date: "2024-02-29", title: "leap" }));
-    expect(getCalendarEvents(2024, 2)[0].date).toBe("2024-02-29");
+    expect((await getCalendarEvents(2024, 2))[0].date).toBe("2024-02-29");
   });
 
   it("accepts events on Thursdays at the start of a month (2026-06-04)", async () => {
     const { POST } = await import("./route");
     const { getCalendarEvents } = await import("@/lib/db");
     await POST(makeRequest({ date: "2026-06-04", title: "first Thursday" }));
-    expect(getCalendarEvents(2026, 6)[0].date).toBe("2026-06-04");
+    expect((await getCalendarEvents(2026, 6))[0].date).toBe("2026-06-04");
   });
 
   it("accepts events on Thursdays at the end of a month (2026-04-30)", async () => {
     const { POST } = await import("./route");
     const { getCalendarEvents } = await import("@/lib/db");
     await POST(makeRequest({ date: "2026-04-30", title: "last Thursday" }));
-    expect(getCalendarEvents(2026, 4)[0].date).toBe("2026-04-30");
+    expect((await getCalendarEvents(2026, 4))[0].date).toBe("2026-04-30");
   });
 
   it("preserves special characters in title (UTF-8, quotes, HTML)", async () => {
@@ -274,7 +276,7 @@ describe("POST /api/calendar", () => {
     const { getCalendarEvents } = await import("@/lib/db");
     const title = "🎉 <script>alert('x')</script> \"quoted\"";
     await POST(makeRequest({ date: "2026-06-11", title }));
-    expect(getCalendarEvents(2026, 6)[0].title).toBe(title);
+    expect((await getCalendarEvents(2026, 6))[0].title).toBe(title);
   });
 
   it("rejects empty body cleanly (title check fires first)", async () => {
@@ -288,26 +290,26 @@ describe("POST /api/calendar", () => {
 describe("PUT /api/calendar", () => {
   it("updates title and time", async () => {
     const { addCalendarEvent, getCalendarEvents } = await import("@/lib/db");
-    addCalendarEvent("2026-06-11", "元のタイトル");
-    const id = getCalendarEvents(2026, 6)[0].id;
+    await addCalendarEvent("2026-06-11", "元のタイトル");
+    const id = (await getCalendarEvents(2026, 6))[0].id;
 
     const { PUT } = await import("./route");
     const res = await PUT(makeRequest({ id, title: "新タイトル", time: "15:00" }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
-    const updated = getCalendarEvents(2026, 6)[0];
+    const updated = (await getCalendarEvents(2026, 6))[0];
     expect(updated.title).toBe("新タイトル");
     expect(updated.time).toBe("15:00");
   });
 
   it("clears time when omitted", async () => {
     const { addCalendarEvent, getCalendarEvents } = await import("@/lib/db");
-    addCalendarEvent("2026-06-11", "イベント", "13:00");
-    const id = getCalendarEvents(2026, 6)[0].id;
+    await addCalendarEvent("2026-06-11", "イベント", "13:00");
+    const id = (await getCalendarEvents(2026, 6))[0].id;
 
     const { PUT } = await import("./route");
     await PUT(makeRequest({ id, title: "イベント" }));
-    expect(getCalendarEvents(2026, 6)[0].time).toBeNull();
+    expect((await getCalendarEvents(2026, 6))[0].time).toBeNull();
   });
 
   it("404 when id does not exist", async () => {
@@ -348,25 +350,25 @@ describe("PUT /api/calendar", () => {
 describe("DELETE /api/calendar", () => {
   it("deletes an event by id", async () => {
     const { addCalendarEvent, getCalendarEvents } = await import("@/lib/db");
-    addCalendarEvent("2026-06-11", "消えるイベント");
-    const id = getCalendarEvents(2026, 6)[0].id;
+    await addCalendarEvent("2026-06-11", "消えるイベント");
+    const id = (await getCalendarEvents(2026, 6))[0].id;
 
     const { DELETE } = await import("./route");
     const res = await DELETE(makeRequest({ id }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
-    expect(getCalendarEvents(2026, 6)).toHaveLength(0);
+    expect(await getCalendarEvents(2026, 6)).toHaveLength(0);
   });
 
   it("only deletes the targeted event, not others on the same date", async () => {
     const { addCalendarEvent, getCalendarEvents } = await import("@/lib/db");
-    addCalendarEvent("2026-06-11", "消える");
-    addCalendarEvent("2026-06-11", "残る");
-    const id = getCalendarEvents(2026, 6)[0].id;
+    await addCalendarEvent("2026-06-11", "消える");
+    await addCalendarEvent("2026-06-11", "残る");
+    const id = (await getCalendarEvents(2026, 6))[0].id;
 
     const { DELETE } = await import("./route");
     await DELETE(makeRequest({ id }));
-    const remaining = getCalendarEvents(2026, 6);
+    const remaining = await getCalendarEvents(2026, 6);
     expect(remaining).toHaveLength(1);
     expect(remaining[0].title).toBe("残る");
   });

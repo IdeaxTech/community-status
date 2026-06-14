@@ -42,8 +42,8 @@ export async function POST(req: Request): Promise<NextResponse> {
     return NextResponse.json({ skipped: true, reason: "outside session hours" });
   }
 
-  const checkins = getCheckins();
-  const announcements = getTodayAnnouncements();
+  const checkins = await getCheckins();
+  const announcements = await getTodayAnnouncements();
 
   // Attendee field
   const atVenue = checkins.filter((c) => c.status === "at_venue");

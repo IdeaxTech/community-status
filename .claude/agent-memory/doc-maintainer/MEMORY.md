@@ -1,0 +1,2 @@
+- [archived plans are historical record](feedback_archived_plans_are_historical_record.md) — don't rewrite docs/plans/archive/** or docs/reports/** when stack changes
+- [verifier already maps doc-drift](reference_verifier_already_maps_doc_drift.md) — read latest verify-*.md to get the exact /sync-docs worklist

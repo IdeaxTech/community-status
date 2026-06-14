@@ -1,0 +1,3 @@
+- [Static verifier command](static_verifier.md) — entry point for verifier role
+- [Native binary externalization blind spot](blind_spot_native_binaries.md) — `next.config.ts` `serverExternalPackages` is invisible to `tsc`
+- [Config/comment drift on env var renames](blind_spot_env_var_renames.md) — grep beyond src/ when env vars are renamed
