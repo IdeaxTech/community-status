@@ -42,6 +42,7 @@ export function CalendarView() {
   const [adding, setAdding] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [addError, setAddError] = useState("");
 
   async function loadEvents(y: number, m: number) {
     const res = await fetch(`/api/calendar?year=${y}&month=${m}`);
@@ -66,15 +67,24 @@ export function CalendarView() {
   async function handleAddEvent(date: string) {
     if (!inputValue.trim()) return;
     setSubmitting(true);
-    await fetch("/api/calendar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ date, title: inputValue.trim() }),
-    });
-    setAdding(null);
-    setInputValue("");
-    setSubmitting(false);
-    await loadEvents(year, month);
+    setAddError("");
+    try {
+      const res = await fetch("/api/calendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date, title: inputValue.trim() }),
+      });
+      if (!res.ok) {
+        const err = await res.json() as { error?: string };
+        setAddError(err.error ?? "追加に失敗しました");
+        return;
+      }
+      setAdding(null);
+      setInputValue("");
+      await loadEvents(year, month);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const thursdayDays = getThursdaysOfMonth(year, month);
@@ -140,6 +150,7 @@ export function CalendarView() {
                   >
                     追加
                   </button>
+                  {addError && <p className="text-xs text-red-500 mt-0.5">{addError}</p>}
                 </div>
               )}
             </div>
