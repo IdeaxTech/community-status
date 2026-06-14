@@ -269,9 +269,15 @@ export function HeroCard({
             <button
               onClick={() => void handleCheckout()}
               disabled={loading}
-              className="text-sm px-3 py-1.5 rounded-lg border transition-colors duration-150 cursor-pointer
-                hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/40 disabled:opacity-40"
-              style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+              className="text-sm px-4 py-1.5 rounded-full border transition-all duration-150 cursor-pointer
+                hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/40
+                active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500
+                disabled:opacity-40"
+              style={{
+                borderColor: "var(--glass-border)",
+                color: "var(--muted)",
+                boxShadow: "inset 0 1px 0 var(--glass-highlight)",
+              }}
             >
               チェックアウト
             </button>
@@ -283,9 +289,15 @@ export function HeroCard({
               value={inputName}
               onChange={(e) => setInputName(e.target.value)}
               placeholder={savedName ? savedName : "Discord 名を入力"}
-              className="w-full px-3 py-2.5 rounded-lg text-sm border outline-none transition-colors duration-150
-                focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
-              style={{ background: "var(--glass)", borderColor: "var(--glass-border)", color: "var(--text)" }}
+              className="w-full px-4 py-2.5 rounded-2xl text-sm border outline-none transition-all duration-150
+                focus:border-blue-400/60 focus:ring-2 focus:ring-blue-500/20"
+              style={{
+                background: "var(--glass)",
+                borderColor: "var(--glass-border)",
+                color: "var(--text)",
+                backdropFilter: "blur(16px)",
+                boxShadow: "inset 0 2px 4px rgba(0,0,0,0.06), inset 0 1px 0 var(--glass-highlight)",
+              }}
             />
 
             {/* Status toggle */}
@@ -294,15 +306,19 @@ export function HeroCard({
                 <button
                   key={s}
                   onClick={() => setCheckinStatus(s)}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-all duration-150 cursor-pointer
+                  className={`flex-1 py-2 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer
+                    active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500
                     ${checkinStatus === s
                       ? s === "at_venue"
                         ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
                         : "bg-amber-500/20 border-amber-500/50 text-amber-400"
-                      : "border-transparent text-muted hover:border-slate-600"}`}
-                  style={checkinStatus !== s ? { borderColor: "var(--border)" } : undefined}
+                      : "text-muted hover:border-slate-400/40"}`}
+                  style={{
+                    borderColor: checkinStatus === s ? undefined : "var(--glass-border)",
+                    boxShadow: "inset 0 1px 0 var(--glass-highlight)",
+                  }}
                 >
-                  {s === "at_venue" ? "🏠 在席中" : "🚶 向かっています"}
+                  {s === "at_venue" ? "在席中" : "向かっています"}
                 </button>
               ))}
             </div>
@@ -310,8 +326,14 @@ export function HeroCard({
             <button
               onClick={() => void handleCheckin()}
               disabled={loading || !effectiveName}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold bg-blue-600 text-white
-                hover:bg-blue-500 active:bg-blue-700 disabled:opacity-40 transition-colors duration-150 cursor-pointer"
+              className="w-full py-2.5 rounded-full text-sm font-semibold text-white
+                transition-all duration-150 cursor-pointer
+                active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-300
+                disabled:opacity-40"
+              style={{
+                background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                boxShadow: "0 4px 16px rgba(37,99,235,0.35), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.10)",
+              }}
             >
               {loading ? "登録中…" : savedName && !inputName.trim() ? `${savedName} でチェックイン` : "チェックイン"}
             </button>

@@ -48,15 +48,27 @@ export function AnnouncementForm({ onPost }: { onPost?: () => void }) {
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") void handleSubmit(); }}
           placeholder="例: 今日は隣のイベントで少し狭いです"
-          className="flex-1 px-3 py-2 rounded-lg text-sm border outline-none transition-colors duration-150
-            focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
-          style={{ background: "var(--glass)", borderColor: "var(--glass-border)", color: "var(--text)" }}
+          className="flex-1 px-4 py-2 rounded-full text-sm border outline-none transition-all duration-150
+            focus:border-blue-400/60 focus:ring-2 focus:ring-blue-500/20"
+          style={{
+            background: "var(--glass)",
+            borderColor: "var(--glass-border)",
+            color: "var(--text)",
+            backdropFilter: "blur(16px)",
+            boxShadow: "inset 0 2px 4px rgba(0,0,0,0.06), inset 0 1px 0 var(--glass-highlight)",
+          }}
         />
         <button
           onClick={() => void handleSubmit()}
           disabled={loading || !content.trim()}
-          className="px-4 py-2 rounded-lg text-sm font-semibold bg-orange-500 text-white
-            hover:bg-orange-400 active:bg-orange-600 disabled:opacity-40 transition-colors duration-150 cursor-pointer"
+          className="px-5 py-2 rounded-full text-sm font-semibold text-white
+            transition-all duration-150 cursor-pointer active:scale-95
+            focus-visible:outline focus-visible:outline-2 focus-visible:outline-orange-300
+            disabled:opacity-40"
+          style={{
+            background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
+            boxShadow: "0 4px 14px rgba(234,88,12,0.35), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.10)",
+          }}
         >
           投稿
         </button>
