@@ -1,13 +1,12 @@
+import path from "node:path";
 import { createClient, type Client } from "@libsql/client";
 
 let client: Client | null = null;
 
 function getClient(): Client {
   if (client) return client;
-  client = createClient({
-    url: process.env.TURSO_DATABASE_URL ?? "file:./data.db",
-    authToken: process.env.TURSO_AUTH_TOKEN,
-  });
+  const url = process.env.TURSO_DATABASE_URL ?? `file:${path.join(process.cwd(), "data.db")}`;
+  client = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN });
   return client;
 }
 
