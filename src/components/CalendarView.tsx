@@ -243,7 +243,7 @@ export function CalendarView() {
               </span>
 
               {isThu && (
-                <p className="text-[9px] sm:text-[10px] text-amber-500 leading-tight mt-0.5 break-words">
+                <p className="text-[9px] sm:text-[10px] text-slate-600 dark:text-slate-300 leading-tight mt-0.5 break-words font-medium">
                   {MOKUMOKU_LABEL}
                 </p>
               )}
@@ -296,7 +296,7 @@ export function CalendarView() {
                     </div>
                   ) : (
                     /* イベント表示 */
-                    <p className="text-[10px] sm:text-xs leading-tight mt-0.5 break-words hover:underline line-clamp-2" style={{ color: "var(--text)" }}>
+                    <p className="text-[10px] sm:text-xs text-slate-700 dark:text-slate-200 leading-tight mt-0.5 break-words hover:underline line-clamp-2">
                       {formatEvent(e)}
                     </p>
                   )}
