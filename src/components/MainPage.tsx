@@ -4,6 +4,7 @@ import { useCallback, useRef } from "react";
 import { StatusBoard } from "./StatusBoard";
 import { CheckinForm } from "./CheckinForm";
 import { AnnouncementForm } from "./AnnouncementForm";
+import { CalendarView } from "./CalendarView";
 
 export function MainPage() {
   const reloadRef = useRef<(() => void) | null>(null);
@@ -26,6 +27,7 @@ export function MainPage() {
       <StatusBoard onReloadRef={reloadRef} />
       <CheckinForm onUpdate={handleUpdate} />
       <AnnouncementForm />
+      <CalendarView />
     </main>
   );
 }
