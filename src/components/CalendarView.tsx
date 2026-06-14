@@ -6,6 +6,7 @@ interface CalendarEvent {
   id: number;
   date: string;
   title: string;
+  time: string | null;
 }
 
 const MOKUMOKU_LABEL = "もくもく会 13:00〜20:00";
@@ -34,15 +35,27 @@ function toDateStr(year: number, month: number, day: number): string {
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
+function formatEvent(e: CalendarEvent): string {
+  return e.time ? `${e.time} ${e.title}` : e.title;
+}
+
 export function CalendarView() {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+
+  // 新規追加フォームの状態
   const [adding, setAdding] = useState<string | null>(null);
-  const [inputValue, setInputValue] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [addTitle, setAddTitle] = useState("");
+  const [addTime, setAddTime] = useState("");
   const [addError, setAddError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // 編集フォームの状態
+  const [editing, setEditing] = useState<{ id: number; title: string; time: string } | null>(null);
+  const [editError, setEditError] = useState("");
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   async function loadEvents(y: number, m: number) {
     const res = await fetch(`/api/calendar?year=${y}&month=${m}`);
@@ -64,15 +77,32 @@ export function CalendarView() {
     else setMonth((m) => m + 1);
   }
 
-  async function handleAddEvent(date: string) {
-    if (!inputValue.trim()) return;
+  function openAdding(dateStr: string) {
+    setEditing(null);
+    setEditError("");
+    setAdding(dateStr);
+    setAddTitle("");
+    setAddTime("");
+    setAddError("");
+  }
+
+  function openEditing(e: CalendarEvent, ev: React.MouseEvent) {
+    ev.stopPropagation();
+    setAdding(null);
+    setAddError("");
+    setEditing({ id: e.id, title: e.title, time: e.time ?? "" });
+    setEditError("");
+  }
+
+  async function handleAdd(date: string) {
+    if (!addTitle.trim()) return;
     setSubmitting(true);
     setAddError("");
     try {
       const res = await fetch("/api/calendar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date, title: inputValue.trim() }),
+        body: JSON.stringify({ date, title: addTitle.trim(), time: addTime || undefined }),
       });
       if (!res.ok) {
         const err = (await res.json()) as { error?: string };
@@ -80,19 +110,65 @@ export function CalendarView() {
         return;
       }
       setAdding(null);
-      setInputValue("");
       await loadEvents(year, month);
     } finally {
       setSubmitting(false);
     }
   }
 
+  async function handleSave() {
+    if (!editing || !editing.title.trim()) return;
+    setEditSubmitting(true);
+    setEditError("");
+    try {
+      const res = await fetch("/api/calendar", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editing.id, title: editing.title.trim(), time: editing.time || undefined }),
+      });
+      if (!res.ok) {
+        const err = (await res.json()) as { error?: string };
+        setEditError(err.error ?? "保存に失敗しました");
+        return;
+      }
+      setEditing(null);
+      await loadEvents(year, month);
+    } finally {
+      setEditSubmitting(false);
+    }
+  }
+
+  async function handleDelete(id: number) {
+    setEditSubmitting(true);
+    try {
+      const res = await fetch("/api/calendar", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) {
+        const err = (await res.json()) as { error?: string };
+        setEditError(err.error ?? "削除に失敗しました");
+        return;
+      }
+      setEditing(null);
+      await loadEvents(year, month);
+    } finally {
+      setEditSubmitting(false);
+    }
+  }
+
   const thursdayDays = getThursdaysOfMonth(year, month);
   const grid = buildCalendarGrid(year, month);
-  const eventsByDate = events.reduce<Record<string, string[]>>((acc, e) => {
-    acc[e.date] = [...(acc[e.date] ?? []), e.title];
+  const eventsByDate = events.reduce<Record<string, CalendarEvent[]>>((acc, e) => {
+    acc[e.date] = [...(acc[e.date] ?? []), e];
     return acc;
   }, {});
+
+  const inputBase = [
+    "w-full text-xs rounded px-1 py-0.5 border outline-none focus:border-blue-500",
+  ].join(" ");
+  const inputStyle = { background: "var(--bg)", borderColor: "var(--border)", color: "var(--text)" };
 
   return (
     <div className="card p-6 space-y-4">
@@ -140,29 +216,25 @@ export function CalendarView() {
         style={{ background: "var(--border)" }}
       >
         {grid.map((day, i) => {
-          if (!day)
-            return (
-              <div key={i} className="min-h-14" style={{ background: "var(--bg)" }} />
-            );
+          if (!day) return <div key={i} className="min-h-14" style={{ background: "var(--bg)" }} />;
 
           const dateStr = toDateStr(year, month, day);
           const isThu = thursdayDays.includes(day);
           const dayEvents = eventsByDate[dateStr] ?? [];
           const isAdding = adding === dateStr;
           const col = i % 7;
-          const dayColor =
-            col === 0 ? "text-red-400" : col === 6 ? "text-blue-400" : "";
+          const dayColor = col === 0 ? "text-red-400" : col === 6 ? "text-blue-400" : "";
 
           return (
             <div
               key={i}
-              className={`min-h-14 p-1 cursor-pointer transition-colors duration-150
+              className={`min-h-14 p-1 transition-colors duration-150 cursor-pointer
                 ${isThu ? "bg-amber-500/10 hover:bg-amber-500/20" : "hover:bg-slate-500/10"}`}
               style={isThu ? undefined : { background: "var(--card)" }}
               onClick={() => {
-                setAdding(isAdding ? null : dateStr);
-                setInputValue("");
-                setAddError("");
+                if (editing) { setEditing(null); return; }
+                openAdding(isAdding ? "" : dateStr);
+                if (isAdding) setAdding(null);
               }}
             >
               <span
@@ -171,47 +243,100 @@ export function CalendarView() {
               >
                 {day}
               </span>
+
               {isThu && (
                 <p className="text-xs text-amber-500 leading-tight mt-0.5 break-words">
                   {MOKUMOKU_LABEL}
                 </p>
               )}
-              {dayEvents.map((title, j) => (
-                <p key={j} className="text-xs text-blue-400 leading-tight mt-0.5 break-words">
-                  {title}
-                </p>
+
+              {/* 既存イベント */}
+              {dayEvents.map((e) => (
+                <div key={e.id} onClick={(ev) => openEditing(e, ev)}>
+                  {editing?.id === e.id ? (
+                    /* 編集フォーム */
+                    <div className="mt-1 space-y-1" onClick={(ev) => ev.stopPropagation()}>
+                      <input
+                        autoFocus
+                        type="text"
+                        value={editing.title}
+                        onChange={(ev) => setEditing({ ...editing, title: ev.target.value })}
+                        onKeyDown={(ev) => {
+                          if (ev.key === "Enter") void handleSave();
+                          if (ev.key === "Escape") setEditing(null);
+                        }}
+                        placeholder="イベント名"
+                        className={inputBase}
+                        style={inputStyle}
+                      />
+                      <input
+                        type="time"
+                        value={editing.time}
+                        onChange={(ev) => setEditing({ ...editing, time: ev.target.value })}
+                        className={inputBase}
+                        style={inputStyle}
+                      />
+                      {editError && <p className="text-xs text-red-400">{editError}</p>}
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => void handleSave()}
+                          disabled={editSubmitting || !editing.title.trim()}
+                          className="flex-1 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded py-0.5
+                            disabled:opacity-40 transition-colors duration-150 cursor-pointer"
+                        >
+                          保存
+                        </button>
+                        <button
+                          onClick={() => void handleDelete(e.id)}
+                          disabled={editSubmitting}
+                          className="text-xs bg-red-600/80 hover:bg-red-600 text-white rounded px-1.5 py-0.5
+                            disabled:opacity-40 transition-colors duration-150 cursor-pointer"
+                        >
+                          削除
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* イベント表示 */
+                    <p className="text-xs text-blue-400 leading-tight mt-0.5 break-words hover:underline">
+                      {formatEvent(e)}
+                    </p>
+                  )}
+                </div>
               ))}
-              {isAdding && (
-                <div className="mt-1" onClick={(e) => e.stopPropagation()}>
+
+              {/* 新規追加フォーム */}
+              {isAdding && !editing && (
+                <div className="mt-1 space-y-1" onClick={(e) => e.stopPropagation()}>
                   <input
                     autoFocus
                     type="text"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    value={addTitle}
+                    onChange={(e) => setAddTitle(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") void handleAddEvent(dateStr);
+                      if (e.key === "Enter") void handleAdd(dateStr);
                       if (e.key === "Escape") setAdding(null);
                     }}
                     placeholder="イベント名"
-                    className="w-full text-xs rounded px-1 py-0.5 border outline-none
-                      focus:border-blue-500"
-                    style={{
-                      background: "var(--bg)",
-                      borderColor: "var(--border)",
-                      color: "var(--text)",
-                    }}
+                    className={inputBase}
+                    style={inputStyle}
                   />
+                  <input
+                    type="time"
+                    value={addTime}
+                    onChange={(e) => setAddTime(e.target.value)}
+                    className={inputBase}
+                    style={inputStyle}
+                  />
+                  {addError && <p className="text-xs text-red-400">{addError}</p>}
                   <button
-                    onClick={() => void handleAddEvent(dateStr)}
-                    disabled={submitting || !inputValue.trim()}
-                    className="mt-0.5 w-full text-xs bg-blue-600 hover:bg-blue-500 text-white rounded py-0.5
+                    onClick={() => void handleAdd(dateStr)}
+                    disabled={submitting || !addTitle.trim()}
+                    className="w-full text-xs bg-blue-600 hover:bg-blue-500 text-white rounded py-0.5
                       disabled:opacity-40 transition-colors duration-150 cursor-pointer"
                   >
                     追加
                   </button>
-                  {addError && (
-                    <p className="text-xs text-red-400 mt-0.5">{addError}</p>
-                  )}
                 </div>
               )}
             </div>
@@ -219,7 +344,7 @@ export function CalendarView() {
         })}
       </div>
 
-      <p className="text-xs text-muted">日付をクリックしてイベントを追加</p>
+      <p className="text-xs text-muted">日付をクリックして追加 / イベントをクリックして編集・削除</p>
     </div>
   );
 }

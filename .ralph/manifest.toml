@@ -1,0 +1,462 @@
+[meta]
+version = '0.3.0'
+created = '2026-06-11T05:19:01Z'
+updated = '2026-06-11T05:19:01Z'
+packs = ['golang', 'python', 'rust', 'typescript']
+
+[files]
+[files.'.claude/agents/doc-maintainer.md']
+hash = 'sha256:3acdbbe3a0e4e6b485c8a80bdc2d3e16c4b9306ae2ddb0389831b12cf51bbced'
+managed = true
+state = 'managed'
+template_hash = 'sha256:3acdbbe3a0e4e6b485c8a80bdc2d3e16c4b9306ae2ddb0389831b12cf51bbced'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__agents__doc-maintainer.md'
+
+[files.'.claude/agents/reviewer.md']
+hash = 'sha256:c569770ef2eee44439e7ce7362ad2e2bccb8f8bf8097f2ec152812f6c0919716'
+managed = true
+state = 'managed'
+template_hash = 'sha256:c569770ef2eee44439e7ce7362ad2e2bccb8f8bf8097f2ec152812f6c0919716'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__agents__reviewer.md'
+
+[files.'.claude/agents/tester.md']
+hash = 'sha256:725aa5011b8693a515a55e2785fd09812f79d82e8157c4c46038e5dd1534d1a6'
+managed = true
+state = 'managed'
+template_hash = 'sha256:725aa5011b8693a515a55e2785fd09812f79d82e8157c4c46038e5dd1534d1a6'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__agents__tester.md'
+
+[files.'.claude/agents/verifier.md']
+hash = 'sha256:bc3c4afc157ce07826f573674a2754318dc16f52a39475f17bcb991a7799023f'
+managed = true
+state = 'managed'
+template_hash = 'sha256:bc3c4afc157ce07826f573674a2754318dc16f52a39475f17bcb991a7799023f'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__agents__verifier.md'
+
+[files.'.claude/hooks/lib_json.sh']
+hash = 'sha256:4ecb926319d1ae290ca7c221bc8e7dfebb36c6b06d3f5285672cf489e9b31fd2'
+managed = true
+state = 'managed'
+template_hash = 'sha256:4ecb926319d1ae290ca7c221bc8e7dfebb36c6b06d3f5285672cf489e9b31fd2'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__hooks__lib_json.sh'
+
+[files.'.claude/hooks/post_edit_verify.sh']
+hash = 'sha256:630b8123dea49257acfc5c629c2678320c867ecb3a962ef8d31ce0453d608e51'
+managed = true
+state = 'managed'
+template_hash = 'sha256:630b8123dea49257acfc5c629c2678320c867ecb3a962ef8d31ce0453d608e51'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__hooks__post_edit_verify.sh'
+
+[files.'.claude/hooks/post_tool_failure_feedback.sh']
+hash = 'sha256:bcbac366b4a6ed7c83f2b4db1f1cf9f02b08f7fb13e16c576e779a231390f5dd'
+managed = true
+state = 'managed'
+template_hash = 'sha256:bcbac366b4a6ed7c83f2b4db1f1cf9f02b08f7fb13e16c576e779a231390f5dd'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__hooks__post_tool_failure_feedback.sh'
+
+[files.'.claude/hooks/pre_bash_guard.sh']
+hash = 'sha256:b9db86c2ab8935946a4f56caf9e094b2468f7b1ddbd0dd87ac3a24bbf08b8305'
+managed = true
+state = 'managed'
+template_hash = 'sha256:b9db86c2ab8935946a4f56caf9e094b2468f7b1ddbd0dd87ac3a24bbf08b8305'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__hooks__pre_bash_guard.sh'
+
+[files.'.claude/hooks/precompact_checkpoint.sh']
+hash = 'sha256:dec791f2e1a7a541d6219116a5fbddb5679da89696cba0d916c7e879ea7bb670'
+managed = true
+state = 'managed'
+template_hash = 'sha256:dec791f2e1a7a541d6219116a5fbddb5679da89696cba0d916c7e879ea7bb670'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__hooks__precompact_checkpoint.sh'
+
+[files.'.claude/hooks/session_end_summary.sh']
+hash = 'sha256:4501259a0cf7deadafbe73d74ff128e75c641b631dc63104b2c6e6e2f58ae193'
+managed = true
+state = 'managed'
+template_hash = 'sha256:4501259a0cf7deadafbe73d74ff128e75c641b631dc63104b2c6e6e2f58ae193'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__hooks__session_end_summary.sh'
+
+[files.'.claude/hooks/session_start_context.sh']
+hash = 'sha256:17bd6eb724d9176771b75db9fc0047e33b8495577a402694e49a17d24c8e0c95'
+managed = true
+state = 'managed'
+template_hash = 'sha256:17bd6eb724d9176771b75db9fc0047e33b8495577a402694e49a17d24c8e0c95'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__hooks__session_start_context.sh'
+
+[files.'.claude/rules/architecture.md']
+hash = 'sha256:eaf79c5cc65882ada98cc49a1f6cdf87dc4c97e8b1909d00445aabb16096f564'
+managed = true
+state = 'managed'
+template_hash = 'sha256:eaf79c5cc65882ada98cc49a1f6cdf87dc4c97e8b1909d00445aabb16096f564'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__rules__architecture.md'
+
+[files.'.claude/rules/documentation.md']
+hash = 'sha256:9e6f56d82fc74a4c77003027bfb062452ff3a6b3bd6efc8f6f97c69a0ec183f9'
+managed = true
+state = 'managed'
+template_hash = 'sha256:9e6f56d82fc74a4c77003027bfb062452ff3a6b3bd6efc8f6f97c69a0ec183f9'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__rules__documentation.md'
+
+[files.'.claude/rules/git-commit-strategy.md']
+hash = 'sha256:e0cc9ce5806917eb4f65e6652b9aaa18659c077af6883f265e3d2b9496ca3cfc'
+managed = true
+state = 'managed'
+template_hash = 'sha256:e0cc9ce5806917eb4f65e6652b9aaa18659c077af6883f265e3d2b9496ca3cfc'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__rules__git-commit-strategy.md'
+
+[files.'.claude/rules/golang.md']
+hash = 'sha256:9a0ec63660d2359a088890db58e16b616246b400955a5d2fbc8ff76ff0e122f5'
+managed = true
+state = 'managed'
+template_hash = 'sha256:9a0ec63660d2359a088890db58e16b616246b400955a5d2fbc8ff76ff0e122f5'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__rules__golang.md'
+
+[files.'.claude/rules/planning.md']
+hash = 'sha256:ef2d2334c95e1e128291581f1e37ffea9250a349fad64730b0936f35f9a42456'
+managed = true
+state = 'managed'
+template_hash = 'sha256:ef2d2334c95e1e128291581f1e37ffea9250a349fad64730b0936f35f9a42456'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__rules__planning.md'
+
+[files.'.claude/rules/post-implementation-pipeline.md']
+hash = 'sha256:2826694153fc9f93af51014fd6fe6560de482c8c448ad222b6d4574f0dd728c1'
+managed = true
+state = 'managed'
+template_hash = 'sha256:2826694153fc9f93af51014fd6fe6560de482c8c448ad222b6d4574f0dd728c1'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__rules__post-implementation-pipeline.md'
+
+[files.'.claude/rules/python.md']
+hash = 'sha256:3dd9d5eaf3bedabff6e7f497b613a06361f9599d2403139f55f89295dea71fed'
+managed = true
+state = 'managed'
+template_hash = 'sha256:3dd9d5eaf3bedabff6e7f497b613a06361f9599d2403139f55f89295dea71fed'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__rules__python.md'
+
+[files.'.claude/rules/rust.md']
+hash = 'sha256:4454644775118918875b41d875e1ddcf5d0ad99f1764747b0b29d7225421f271'
+managed = true
+state = 'managed'
+template_hash = 'sha256:4454644775118918875b41d875e1ddcf5d0ad99f1764747b0b29d7225421f271'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__rules__rust.md'
+
+[files.'.claude/rules/subagent-policy.md']
+hash = 'sha256:6c2dd686eb0e7b376ed87d7b28ca9e3437962488655422e1812e1c25116b07cd'
+managed = true
+state = 'managed'
+template_hash = 'sha256:6c2dd686eb0e7b376ed87d7b28ca9e3437962488655422e1812e1c25116b07cd'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__rules__subagent-policy.md'
+
+[files.'.claude/rules/testing.md']
+hash = 'sha256:fab6b368c952a4f6eb3609dafb01b6bc565e8c46f888a806147651625ed8e839'
+managed = true
+state = 'managed'
+template_hash = 'sha256:fab6b368c952a4f6eb3609dafb01b6bc565e8c46f888a806147651625ed8e839'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__rules__testing.md'
+
+[files.'.claude/rules/typescript.md']
+hash = 'sha256:ab78241cf4bdf153aa1c100aeaca586a40f1fb8d8651fff07f4707946aff66f2'
+managed = true
+state = 'managed'
+template_hash = 'sha256:ab78241cf4bdf153aa1c100aeaca586a40f1fb8d8651fff07f4707946aff66f2'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__rules__typescript.md'
+
+[files.'.claude/settings.json']
+hash = 'sha256:65dccb0ea7d53f4864ca7245a4387f678ce344c2309fc164d5bcb2440baee0ad'
+managed = true
+state = 'managed'
+template_hash = 'sha256:65dccb0ea7d53f4864ca7245a4387f678ce344c2309fc164d5bcb2440baee0ad'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__settings.json'
+
+[files.'.claude/skills/plan/SKILL.md']
+hash = 'sha256:49f748f23c2760dc9aa65964945070af7a3ea59ac34298bb1a60bb347db1617b'
+managed = true
+state = 'managed'
+template_hash = 'sha256:49f748f23c2760dc9aa65964945070af7a3ea59ac34298bb1a60bb347db1617b'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__plan__SKILL.md'
+
+[files.'.claude/skills/plan/template.md']
+hash = 'sha256:efe844ec9f117c1a8bf1db1158d9a07e5d0dd198386a817c5bf4a37b634d7958'
+managed = true
+state = 'managed'
+template_hash = 'sha256:efe844ec9f117c1a8bf1db1158d9a07e5d0dd198386a817c5bf4a37b634d7958'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__plan__template.md'
+
+[files.'.claude/skills/pr/SKILL.md']
+hash = 'sha256:a9ccf9933410c8d2d657a58c0ba02035a2b39e3c6233ffe4e1ae0a584d7ef89f'
+managed = true
+state = 'managed'
+template_hash = 'sha256:a9ccf9933410c8d2d657a58c0ba02035a2b39e3c6233ffe4e1ae0a584d7ef89f'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__pr__SKILL.md'
+
+[files.'.claude/skills/pr/template.md']
+hash = 'sha256:40cdb27ea41289517e1e6b25ef1e3635f440d64db10af9e166841b45c1bc8249'
+managed = true
+state = 'managed'
+template_hash = 'sha256:40cdb27ea41289517e1e6b25ef1e3635f440d64db10af9e166841b45c1bc8249'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__pr__template.md'
+
+[files.'.claude/skills/self-review/SKILL.md']
+hash = 'sha256:02a9f84acc0d2cc4dd6b6883c5080a131ddf7c22485dac11f6026a250b8d9c5e'
+managed = true
+state = 'managed'
+template_hash = 'sha256:02a9f84acc0d2cc4dd6b6883c5080a131ddf7c22485dac11f6026a250b8d9c5e'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__self-review__SKILL.md'
+
+[files.'.claude/skills/self-review/template.md']
+hash = 'sha256:3c3db2169f3604c677380ef4c24fd009cad1dbe6c461b266f4edb52e49bdb904'
+managed = true
+state = 'managed'
+template_hash = 'sha256:3c3db2169f3604c677380ef4c24fd009cad1dbe6c461b266f4edb52e49bdb904'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__self-review__template.md'
+
+[files.'.claude/skills/spec/SKILL.md']
+hash = 'sha256:6e0e85739555ce321bbabdb60f23d7158a031f60a97ce62490e45c56e4be2ced'
+managed = true
+state = 'managed'
+template_hash = 'sha256:6e0e85739555ce321bbabdb60f23d7158a031f60a97ce62490e45c56e4be2ced'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__spec__SKILL.md'
+
+[files.'.claude/skills/sync-docs/SKILL.md']
+hash = 'sha256:705be99e269c3598246c0351f714f3a1a6fd169dbbc8956ec4d0c307e7574cfd'
+managed = true
+state = 'managed'
+template_hash = 'sha256:705be99e269c3598246c0351f714f3a1a6fd169dbbc8956ec4d0c307e7574cfd'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__sync-docs__SKILL.md'
+
+[files.'.claude/skills/test/SKILL.md']
+hash = 'sha256:cb58ba52e26ca762c7c32639a5b72e356857dd6782c32f9f5aeed7cb75719f66'
+managed = true
+state = 'managed'
+template_hash = 'sha256:cb58ba52e26ca762c7c32639a5b72e356857dd6782c32f9f5aeed7cb75719f66'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__test__SKILL.md'
+
+[files.'.claude/skills/test/template.md']
+hash = 'sha256:90c133195fdbf198289f99908b3d35a2f7b96ac70c8b5851e67566881bb11453'
+managed = true
+state = 'managed'
+template_hash = 'sha256:90c133195fdbf198289f99908b3d35a2f7b96ac70c8b5851e67566881bb11453'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__test__template.md'
+
+[files.'.claude/skills/verify/SKILL.md']
+hash = 'sha256:cbb62d81f3732240613a94b6389314f0a97c13a1548a22245c76305e3c8ff672'
+managed = true
+state = 'managed'
+template_hash = 'sha256:cbb62d81f3732240613a94b6389314f0a97c13a1548a22245c76305e3c8ff672'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__verify__SKILL.md'
+
+[files.'.claude/skills/verify/template.md']
+hash = 'sha256:dac0c4e619481bc2cc4a4fe598f45528b147286eae8d0fc10956326761753a34'
+managed = true
+state = 'managed'
+template_hash = 'sha256:dac0c4e619481bc2cc4a4fe598f45528b147286eae8d0fc10956326761753a34'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__verify__template.md'
+
+[files.'.claude/skills/work/SKILL.md']
+hash = 'sha256:eafe078cd1c2fc8d5a8e798ebed5a1e77ae8b4b7985178f7df03a4b7600af623'
+managed = true
+state = 'managed'
+template_hash = 'sha256:eafe078cd1c2fc8d5a8e798ebed5a1e77ae8b4b7985178f7df03a4b7600af623'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/.claude__skills__work__SKILL.md'
+
+[files.'CLAUDE.md']
+hash = 'sha256:9320066c3ea2e322c744a02936b7e7a6a42fa09d2f046503c6a63ffcf86c5340'
+managed = true
+state = 'managed'
+template_hash = 'sha256:9320066c3ea2e322c744a02936b7e7a6a42fa09d2f046503c6a63ffcf86c5340'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/CLAUDE.md'
+
+[files.'docs/evidence/.gitkeep']
+hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+managed = true
+state = 'managed'
+template_hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/docs__evidence__.gitkeep'
+
+[files.'docs/plans/active/.gitkeep']
+hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+managed = true
+state = 'managed'
+template_hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/docs__plans__active__.gitkeep'
+
+[files.'docs/plans/archive/.gitkeep']
+hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+managed = true
+state = 'managed'
+template_hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/docs__plans__archive__.gitkeep'
+
+[files.'docs/quality/definition-of-done.md']
+hash = 'sha256:a3c4b0e815dbb9ac6129fc0b6e106de87c7241a2cddbfe9892167f1ce93c48bd'
+managed = true
+state = 'managed'
+template_hash = 'sha256:a3c4b0e815dbb9ac6129fc0b6e106de87c7241a2cddbfe9892167f1ce93c48bd'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/docs__quality__definition-of-done.md'
+
+[files.'docs/reports/.gitkeep']
+hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+managed = true
+state = 'managed'
+template_hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/docs__reports__.gitkeep'
+
+[files.'docs/specs/.gitkeep']
+hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+managed = true
+state = 'managed'
+template_hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/docs__specs__.gitkeep'
+
+[files.'docs/tech-debt/.gitkeep']
+hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+managed = true
+state = 'managed'
+template_hash = 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/docs__tech-debt__.gitkeep'
+
+[files.'ralph.toml']
+hash = 'sha256:4f07e4cd59a68c5191e1c7b178a131254e7fa0d801d8ce19710aff8c55c5f7c0'
+managed = true
+state = 'managed'
+template_hash = 'sha256:4f07e4cd59a68c5191e1c7b178a131254e7fa0d801d8ce19710aff8c55c5f7c0'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/ralph.toml'
+
+[files.'scripts/archive-plan.sh']
+hash = 'sha256:1add55965de5b38062cb9187d1a4b46f8c1fea9c4b2962ff6086fea1ead3c9f4'
+managed = true
+state = 'managed'
+template_hash = 'sha256:1add55965de5b38062cb9187d1a4b46f8c1fea9c4b2962ff6086fea1ead3c9f4'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__archive-plan.sh'
+
+[files.'scripts/branch-name.sh']
+hash = 'sha256:f7d2ea344b82ee6136cf06db9c01e0b2598d5402cdd42814b73202540cccd3fd'
+managed = true
+state = 'managed'
+template_hash = 'sha256:f7d2ea344b82ee6136cf06db9c01e0b2598d5402cdd42814b73202540cccd3fd'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__branch-name.sh'
+
+[files.'scripts/detect-languages.sh']
+hash = 'sha256:6e30f4b34d5ad211d1c1f5ace8204d062351550e0449789e2fbf1adbeff9ad5a'
+managed = true
+state = 'managed'
+template_hash = 'sha256:6e30f4b34d5ad211d1c1f5ace8204d062351550e0449789e2fbf1adbeff9ad5a'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__detect-languages.sh'
+
+[files.'scripts/ensure-pr-ready.sh']
+hash = 'sha256:2cd3505a8794de74903b06b17fe03070768f25aaa3988958cae16bf0891f30b3'
+managed = true
+state = 'managed'
+template_hash = 'sha256:2cd3505a8794de74903b06b17fe03070768f25aaa3988958cae16bf0891f30b3'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__ensure-pr-ready.sh'
+
+[files.'scripts/new-feature-plan.sh']
+hash = 'sha256:4bffe35433cb4f78dab41e60d6e1373117b2ad2aecce3a720d455297b57b9080'
+managed = true
+state = 'managed'
+template_hash = 'sha256:4bffe35433cb4f78dab41e60d6e1373117b2ad2aecce3a720d455297b57b9080'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__new-feature-plan.sh'
+
+[files.'scripts/run-static-verify.sh']
+hash = 'sha256:a81c43fbfc2d416a0b4f3a8363bc753b10a07ee29cd15798ae1cd25ef17394dd'
+managed = true
+state = 'managed'
+template_hash = 'sha256:a81c43fbfc2d416a0b4f3a8363bc753b10a07ee29cd15798ae1cd25ef17394dd'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__run-static-verify.sh'
+
+[files.'scripts/run-test.sh']
+hash = 'sha256:025077e4566f47d9d333d74f64988717d88fdd369d791a6547df8d5a3a405ef8'
+managed = true
+state = 'managed'
+template_hash = 'sha256:025077e4566f47d9d333d74f64988717d88fdd369d791a6547df8d5a3a405ef8'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__run-test.sh'
+
+[files.'scripts/run-verify.sh']
+hash = 'sha256:458ecff53c571ef3c2f55d47f81bbbe9ac57e2f19d753b5d3d21acf822a3560e'
+managed = true
+state = 'managed'
+template_hash = 'sha256:458ecff53c571ef3c2f55d47f81bbbe9ac57e2f19d753b5d3d21acf822a3560e'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__run-verify.sh'
+
+[files.'scripts/verify-golang.sh']
+hash = 'sha256:dee0177545d98bffc1dc68cb3146c3882a119d960006de321e4d0505620148d4'
+managed = true
+state = 'managed'
+template_hash = 'sha256:dee0177545d98bffc1dc68cb3146c3882a119d960006de321e4d0505620148d4'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__verify-golang.sh'
+
+[files.'scripts/verify-python.sh']
+hash = 'sha256:46ed76ced68d83d1b8908900919d73283d59cff62c278de70340816b3bd5f175'
+managed = true
+state = 'managed'
+template_hash = 'sha256:46ed76ced68d83d1b8908900919d73283d59cff62c278de70340816b3bd5f175'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__verify-python.sh'
+
+[files.'scripts/verify-rust.sh']
+hash = 'sha256:e47517ce762f482e4e8fa514bd4124f351a126e47301cf6c49705e69e8e99897'
+managed = true
+state = 'managed'
+template_hash = 'sha256:e47517ce762f482e4e8fa514bd4124f351a126e47301cf6c49705e69e8e99897'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__verify-rust.sh'
+
+[files.'scripts/verify-typescript.sh']
+hash = 'sha256:189e296bb09bed2c99bc21b5ea9fa13967c675bab9ec4d9ad65bdc11ff0699ac'
+managed = true
+state = 'managed'
+template_hash = 'sha256:189e296bb09bed2c99bc21b5ea9fa13967c675bab9ec4d9ad65bdc11ff0699ac'
+baseline_status = 'available'
+baseline_path = '.ralph/baselines/scripts__verify-typescript.sh'

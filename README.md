@@ -39,7 +39,7 @@ src/
 │   ├── layout.tsx
 │   └── api/
 │       ├── announcements/route.ts  # GET 一覧 / POST 投稿 + Discord 通知
-│       ├── calendar/route.ts       # GET 月別イベント / POST イベント追加
+│       ├── calendar/route.ts       # GET 月別イベント / POST 追加 / PUT 編集 / DELETE 削除
 │       ├── checkin/route.ts        # POST チェックイン / DELETE チェックアウト
 │       └── status/route.ts         # GET 参加者数・参加者一覧（attendees: {name, status}[]）
 ├── lib/
@@ -97,6 +97,7 @@ npm test            # vitest run
 - `journal_mode = WAL` を有効化。
 - `checkins` の自動リセットは API ルート呼び出し時に `getCheckins()` が JST の今日でない行を `DELETE` する（cron 不要のレイジー方式）。
 - `checkins.status` カラム（`"at_venue"` / `"on_the_way"`）は `ALTER TABLE … ADD COLUMN` で既存 DB に追加（起動時に try-catch で冪等適用）。
+- `calendar_events.time` カラム（`HH:MM` 文字列、nullable）も同様に冪等マイグレーション済み。
 
 ## デプロイ
 
