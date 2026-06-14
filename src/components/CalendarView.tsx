@@ -296,7 +296,7 @@ export function CalendarView() {
                     </div>
                   ) : (
                     /* イベント表示 */
-                    <p className="text-[10px] sm:text-xs text-blue-400 leading-tight mt-0.5 break-words hover:underline line-clamp-2">
+                    <p className="text-[10px] sm:text-xs text-orange-600 dark:text-orange-400 leading-tight mt-0.5 break-words hover:underline line-clamp-2">
                       {formatEvent(e)}
                     </p>
                   )}
