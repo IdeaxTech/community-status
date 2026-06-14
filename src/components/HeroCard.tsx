@@ -50,8 +50,17 @@ function getSessionState(): SessionState {
 function SessionBadge({ state }: { state: SessionState }) {
   if (state.kind === "active")
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-slow" />
+      <span
+        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
+          animate-glow-pulse text-white"
+        style={{
+          background: "linear-gradient(270deg,#6366f1,#8b5cf6,#ec4899,#6366f1)",
+          backgroundSize: "300% 300%",
+          animation: "iridescent 4s linear infinite, glowPulse 2s ease-in-out infinite",
+          border: "1px solid rgba(255,255,255,0.25)",
+        }}
+      >
+        <span className="w-2 h-2 rounded-full bg-white animate-pulse-slow" />
         開催中
       </span>
     );
@@ -60,20 +69,29 @@ function SessionBadge({ state }: { state: SessionState }) {
     const m = state.startsInMin % 60;
     const label = h > 0 ? `${h}時間${m}分後に開始` : `${m}分後に開始`;
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30">
-        <span className="w-2 h-2 rounded-full bg-blue-400" />
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
+        text-sky-300 border border-sky-400/30"
+        style={{ background: "rgba(14,165,233,0.12)", backdropFilter: "blur(8px)" }}
+      >
+        <span className="w-2 h-2 rounded-full bg-sky-400" />
         本日開催 — {label}
       </span>
     );
   }
   if (state.kind === "ended")
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-500/20 text-slate-400 border border-slate-500/30">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
+        text-slate-400 border border-slate-500/20"
+        style={{ background: "var(--glass)" }}
+      >
         本日終了
       </span>
     );
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-500/20 text-slate-400 border border-slate-500/30">
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
+      text-slate-400 border border-slate-500/20"
+      style={{ background: "var(--glass)" }}
+    >
       次回: {state.dateLabel}（{state.daysUntil}日後）
     </span>
   );
@@ -222,8 +240,8 @@ export function HeroCard({
           {data.attendees.length > 0 ? (
             <ul className="space-y-2">
               {data.attendees.map((a) => (
-                <li key={a.name} className="flex items-center justify-between py-1.5 px-3 rounded-lg"
-                  style={{ background: "color-mix(in srgb, var(--card) 60%, transparent)" }}>
+                <li key={a.name} className="flex items-center justify-between py-1.5 px-3 rounded-xl border"
+                  style={{ background: "var(--glass)", borderColor: "var(--glass-border)" }}>
                   <span className="text-sm font-medium" style={{ color: "var(--text)" }}>
                     {a.name}
                   </span>

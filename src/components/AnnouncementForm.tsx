@@ -50,7 +50,7 @@ export function AnnouncementForm({ onPost }: { onPost?: () => void }) {
           placeholder="例: 今日は隣のイベントで少し狭いです"
           className="flex-1 px-3 py-2 rounded-lg text-sm border outline-none transition-colors duration-150
             focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
-          style={{ background: "var(--bg)", borderColor: "var(--border)", color: "var(--text)" }}
+          style={{ background: "var(--glass)", borderColor: "var(--glass-border)", color: "var(--text)" }}
         />
         <button
           onClick={() => void handleSubmit()}
@@ -68,7 +68,7 @@ export function AnnouncementForm({ onPost }: { onPost?: () => void }) {
             <li
               key={a.id}
               className="flex flex-col gap-0.5 py-2 px-3 rounded-lg border-l-2 border-orange-500/60"
-              style={{ background: "color-mix(in srgb, var(--card) 60%, transparent)" }}
+              style={{ background: "var(--glass)", borderColor: "var(--glass-border)" }}
             >
               <span className="text-xs text-muted">{a.created_at}</span>
               <p className="text-sm" style={{ color: "var(--text)" }}>{a.content}</p>
