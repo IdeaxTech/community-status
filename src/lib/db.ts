@@ -43,7 +43,12 @@ async function initSchema(): Promise<void> {
 
 let schemaReady: Promise<void> | null = null;
 function ensureSchema(): Promise<void> {
-  if (!schemaReady) schemaReady = initSchema();
+  if (!schemaReady) {
+    schemaReady = initSchema().catch((err) => {
+      schemaReady = null; // allow retry on next call
+      throw err;
+    });
+  }
   return schemaReady;
 }
 
