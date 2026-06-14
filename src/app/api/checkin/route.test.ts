@@ -16,11 +16,13 @@ let tmpDir: string;
 beforeEach(() => {
   vi.resetModules();
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "cs-checkin-"));
-  process.env.DB_PATH = path.join(tmpDir, "test.db");
+  process.env.TURSO_DATABASE_URL = `file:${path.join(tmpDir, "test.db")}`;
+  delete process.env.TURSO_AUTH_TOKEN;
 });
 
 afterEach(() => {
-  delete process.env.DB_PATH;
+  delete process.env.TURSO_DATABASE_URL;
+  delete process.env.TURSO_AUTH_TOKEN;
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
@@ -31,7 +33,7 @@ describe("POST /api/checkin", () => {
     const res = await POST(makeRequest({ discord_name: "alice" }));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
-    expect(getCheckins().map((c) => c.discord_name)).toEqual(["alice"]);
+    expect((await getCheckins()).map((c) => c.discord_name)).toEqual(["alice"]);
   });
 
   it("trims surrounding whitespace before persisting", async () => {
@@ -39,7 +41,7 @@ describe("POST /api/checkin", () => {
     const { getCheckins } = await import("@/lib/db");
     const res = await POST(makeRequest({ discord_name: "  alice  " }));
     expect(res.status).toBe(200);
-    expect(getCheckins().map((c) => c.discord_name)).toEqual(["alice"]);
+    expect((await getCheckins()).map((c) => c.discord_name)).toEqual(["alice"]);
   });
 
   it("400 on empty string", async () => {
@@ -79,16 +81,14 @@ describe("POST /api/checkin", () => {
     await POST(makeRequest({ discord_name: "alice" }));
     const res = await POST(makeRequest({ discord_name: "alice" }));
     expect(res.status).toBe(200);
-    expect(getCheckins().filter((c) => c.discord_name === "alice")).toHaveLength(
-      1
-    );
+    expect((await getCheckins()).filter((c) => c.discord_name === "alice")).toHaveLength(1);
   });
 
   it("accepts Discord names with special characters", async () => {
     const { POST } = await import("./route");
     const { getCheckins } = await import("@/lib/db");
     await POST(makeRequest({ discord_name: "ユーザー🎉#1234" }));
-    expect(getCheckins().map((c) => c.discord_name)).toEqual([
+    expect((await getCheckins()).map((c) => c.discord_name)).toEqual([
       "ユーザー🎉#1234",
     ]);
   });
@@ -101,7 +101,7 @@ describe("DELETE /api/checkin", () => {
     await POST(makeRequest({ discord_name: "alice" }));
     const res = await DELETE(makeRequest({ discord_name: "alice" }));
     expect(res.status).toBe(200);
-    expect(getCheckins()).toEqual([]);
+    expect(await getCheckins()).toEqual([]);
   });
 
   it("deleting a non-existent name is a no-op success", async () => {

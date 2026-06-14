@@ -1,36 +1,30 @@
-import Database from "better-sqlite3";
-import path from "path";
+import { createClient, type Client } from "@libsql/client";
 
-// Vercel serverless: only /tmp is writable. Local: use project root.
-const DB_PATH = process.env.DB_PATH ?? (
-  process.env.VERCEL ? "/tmp/data.db" : path.join(process.cwd(), "data.db")
-);
+let client: Client | null = null;
 
-let db: Database.Database | null = null;
-
-function getDb(): Database.Database {
-  if (db) return db;
-  db = new Database(DB_PATH);
-  db.pragma("journal_mode = WAL");
-  initSchema(db);
-  return db;
+function getClient(): Client {
+  if (client) return client;
+  client = createClient({
+    url: process.env.TURSO_DATABASE_URL ?? "file:./data.db",
+    authToken: process.env.TURSO_AUTH_TOKEN,
+  });
+  return client;
 }
 
-function initSchema(database: Database.Database): void {
-  database.exec(`
+async function initSchema(): Promise<void> {
+  const db = getClient();
+  await db.executeMultiple(`
     CREATE TABLE IF NOT EXISTS announcements (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       content TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
-
     CREATE TABLE IF NOT EXISTS checkins (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       discord_name TEXT NOT NULL UNIQUE,
       date TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'at_venue'
     );
-
     CREATE TABLE IF NOT EXISTS calendar_events (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       date TEXT NOT NULL,
@@ -39,105 +33,131 @@ function initSchema(database: Database.Database): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `);
-  // Migrate: add status column to existing checkins tables
-  try {
-    database.exec("ALTER TABLE checkins ADD COLUMN status TEXT NOT NULL DEFAULT 'at_venue'");
-  } catch {
-    // Column already exists — no-op
+  for (const sql of [
+    "ALTER TABLE checkins ADD COLUMN status TEXT NOT NULL DEFAULT 'at_venue'",
+    "ALTER TABLE calendar_events ADD COLUMN time TEXT",
+  ]) {
+    try { await db.execute(sql); } catch { /* already exists */ }
   }
-  // Migrate: add time column to existing calendar_events tables
-  try {
-    database.exec("ALTER TABLE calendar_events ADD COLUMN time TEXT");
-  } catch {
-    // Column already exists — no-op
-  }
+}
+
+let schemaReady: Promise<void> | null = null;
+function ensureSchema(): Promise<void> {
+  if (!schemaReady) schemaReady = initSchema();
+  return schemaReady;
 }
 
 function todayJst(): string {
-  // Intl.DateTimeFormat gives JST date parts regardless of host TZ
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
+    year: "numeric", month: "2-digit", day: "2-digit",
   }).formatToParts(new Date());
-  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
   return `${get("year")}-${get("month")}-${get("day")}`;
-}
-
-export function getAnnouncements(): { id: number; content: string; created_at: string }[] {
-  return getDb()
-    .prepare("SELECT id, content, created_at FROM announcements ORDER BY id DESC")
-    .all() as { id: number; content: string; created_at: string }[];
-}
-
-export function getTodayAnnouncements(): { id: number; content: string; created_at: string }[] {
-  const today = todayJst();
-  // created_at is stored as UTC datetime; convert to JST date for comparison
-  return getDb()
-    .prepare(
-      "SELECT id, content, created_at FROM announcements WHERE date(created_at, '+9 hours') = ? ORDER BY id ASC"
-    )
-    .all(today) as { id: number; content: string; created_at: string }[];
-}
-
-export function addAnnouncement(content: string): void {
-  getDb()
-    .prepare("INSERT INTO announcements (content) VALUES (?)")
-    .run(content);
 }
 
 export type CheckinStatus = "at_venue" | "on_the_way";
 
-export function getCheckins(): { discord_name: string; status: CheckinStatus }[] {
+export async function getAnnouncements(): Promise<{ id: number; content: string; created_at: string }[]> {
+  await ensureSchema();
+  const r = await getClient().execute(
+    "SELECT id, content, created_at FROM announcements ORDER BY id DESC"
+  );
+  return r.rows.map((row) => ({
+    id: Number(row.id),
+    content: String(row.content),
+    created_at: String(row.created_at),
+  }));
+}
+
+export async function getTodayAnnouncements(): Promise<{ id: number; content: string; created_at: string }[]> {
+  await ensureSchema();
   const today = todayJst();
-  getDb().prepare("DELETE FROM checkins WHERE date != ?").run(today);
-  return getDb()
-    .prepare("SELECT discord_name, status FROM checkins WHERE date = ? ORDER BY id ASC")
-    .all(today) as { discord_name: string; status: CheckinStatus }[];
+  const r = await getClient().execute({
+    sql: "SELECT id, content, created_at FROM announcements WHERE date(created_at, '+9 hours') = ? ORDER BY id ASC",
+    args: [today],
+  });
+  return r.rows.map((row) => ({
+    id: Number(row.id),
+    content: String(row.content),
+    created_at: String(row.created_at),
+  }));
 }
 
-export function addCheckin(discordName: string, status: CheckinStatus = "at_venue"): void {
+export async function addAnnouncement(content: string): Promise<void> {
+  await ensureSchema();
+  await getClient().execute({ sql: "INSERT INTO announcements (content) VALUES (?)", args: [content] });
+}
+
+export async function getCheckins(): Promise<{ discord_name: string; status: CheckinStatus }[]> {
+  await ensureSchema();
   const today = todayJst();
-  getDb()
-    .prepare("INSERT OR REPLACE INTO checkins (discord_name, date, status) VALUES (?, ?, ?)")
-    .run(discordName, today, status);
+  const db = getClient();
+  await db.execute({ sql: "DELETE FROM checkins WHERE date != ?", args: [today] });
+  const r = await db.execute({
+    sql: "SELECT discord_name, status FROM checkins WHERE date = ? ORDER BY id ASC",
+    args: [today],
+  });
+  return r.rows.map((row) => ({
+    discord_name: String(row.discord_name),
+    status: String(row.status) as CheckinStatus,
+  }));
 }
 
-export function removeCheckin(discordName: string): void {
-  getDb()
-    .prepare("DELETE FROM checkins WHERE discord_name = ?")
-    .run(discordName);
+export async function addCheckin(discordName: string, status: CheckinStatus = "at_venue"): Promise<void> {
+  await ensureSchema();
+  const today = todayJst();
+  await getClient().execute({
+    sql: "INSERT OR REPLACE INTO checkins (discord_name, date, status) VALUES (?, ?, ?)",
+    args: [discordName, today, status],
+  });
 }
 
-export function getCalendarEvents(
+export async function removeCheckin(discordName: string): Promise<void> {
+  await ensureSchema();
+  await getClient().execute({ sql: "DELETE FROM checkins WHERE discord_name = ?", args: [discordName] });
+}
+
+export async function getCalendarEvents(
   year: number,
   month: number
-): { id: number; date: string; title: string; time: string | null }[] {
+): Promise<{ id: number; date: string; title: string; time: string | null }[]> {
+  await ensureSchema();
   const prefix = `${String(year)}-${String(month).padStart(2, "0")}`;
-  return getDb()
-    .prepare(
-      "SELECT id, date, title, time FROM calendar_events WHERE date LIKE ? ORDER BY date ASC, time ASC, id ASC"
-    )
-    .all(`${prefix}-%`) as { id: number; date: string; title: string; time: string | null }[];
+  const r = await getClient().execute({
+    sql: "SELECT id, date, title, time FROM calendar_events WHERE date LIKE ? ORDER BY date ASC, time ASC, id ASC",
+    args: [`${prefix}-%`],
+  });
+  return r.rows.map((row) => ({
+    id: Number(row.id),
+    date: String(row.date),
+    title: String(row.title),
+    time: row.time != null ? String(row.time) : null,
+  }));
 }
 
-export function addCalendarEvent(date: string, title: string, time?: string): void {
-  getDb()
-    .prepare("INSERT INTO calendar_events (date, title, time) VALUES (?, ?, ?)")
-    .run(date, title, time ?? null);
+export async function addCalendarEvent(date: string, title: string, time?: string): Promise<void> {
+  await ensureSchema();
+  await getClient().execute({
+    sql: "INSERT INTO calendar_events (date, title, time) VALUES (?, ?, ?)",
+    args: [date, title, time ?? null],
+  });
 }
 
-export function updateCalendarEvent(id: number, title: string, time: string | null): boolean {
-  const result = getDb()
-    .prepare("UPDATE calendar_events SET title = ?, time = ? WHERE id = ?")
-    .run(title, time, id);
-  return result.changes > 0;
+export async function updateCalendarEvent(id: number, title: string, time: string | null): Promise<boolean> {
+  await ensureSchema();
+  const r = await getClient().execute({
+    sql: "UPDATE calendar_events SET title = ?, time = ? WHERE id = ?",
+    args: [title, time, id],
+  });
+  return (r.rowsAffected ?? 0) > 0;
 }
 
-export function deleteCalendarEvent(id: number): boolean {
-  const result = getDb()
-    .prepare("DELETE FROM calendar_events WHERE id = ?")
-    .run(id);
-  return result.changes > 0;
+export async function deleteCalendarEvent(id: number): Promise<boolean> {
+  await ensureSchema();
+  const r = await getClient().execute({
+    sql: "DELETE FROM calendar_events WHERE id = ?",
+    args: [id],
+  });
+  return (r.rowsAffected ?? 0) > 0;
 }
