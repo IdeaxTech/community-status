@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import { HeroCard } from "./HeroCard";
 import { AnnouncementForm } from "./AnnouncementForm";
 import { CalendarView } from "./CalendarView";
@@ -8,7 +7,6 @@ import { Toaster } from "./Toaster";
 import { useToast } from "@/hooks/useToast";
 
 export function MainPage() {
-  const reloadRef = useRef<(() => void) | null>(null);
   const { toasts, showToast } = useToast();
 
   return (
@@ -21,7 +19,7 @@ export function MainPage() {
           <p className="text-xs text-muted mt-0.5">リアルタイムの参加状況を確認・共有できます</p>
         </header>
 
-        <HeroCard onReloadRef={reloadRef} showToast={showToast} />
+        <HeroCard showToast={showToast} />
         <AnnouncementForm />
         <CalendarView />
       </main>
