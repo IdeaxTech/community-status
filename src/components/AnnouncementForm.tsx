@@ -68,7 +68,7 @@ export function AnnouncementForm({ onPost }: { onPost?: () => void }) {
             <li
               key={a.id}
               className="flex flex-col gap-0.5 py-2 px-3 rounded-lg border-l-2 border-orange-500/60"
-              style={{ background: "var(--glass)", borderColor: "var(--glass-border)" }}
+              style={{ background: "var(--glass)" }}
             >
               <span className="text-xs text-muted">{a.created_at}</span>
               <p className="text-sm" style={{ color: "var(--text)" }}>{a.content}</p>

@@ -51,8 +51,7 @@ function SessionBadge({ state }: { state: SessionState }) {
   if (state.kind === "active")
     return (
       <span
-        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
-          animate-glow-pulse text-white"
+        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-white"
         style={{
           background: "linear-gradient(270deg,#6366f1,#8b5cf6,#ec4899,#6366f1)",
           backgroundSize: "300% 300%",
@@ -286,7 +285,7 @@ export function HeroCard({
               placeholder={savedName ? savedName : "Discord 名を入力"}
               className="w-full px-3 py-2.5 rounded-lg text-sm border outline-none transition-colors duration-150
                 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
-              style={{ background: "var(--bg)", borderColor: "var(--border)", color: "var(--text)" }}
+              style={{ background: "var(--glass)", borderColor: "var(--glass-border)", color: "var(--text)" }}
             />
 
             {/* Status toggle */}
