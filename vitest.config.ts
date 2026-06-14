@@ -10,8 +10,8 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts", "tests/**/*.test.ts"],
-    // Each test file gets its own DB_PATH and module registry via dynamic import,
-    // so file-level isolation is sufficient.
+    // Each test file gets its own TURSO_DATABASE_URL (file:<tmpdir>) and module
+    // registry via dynamic import, so file-level isolation is sufficient.
     pool: "forks",
     poolOptions: {
       forks: {

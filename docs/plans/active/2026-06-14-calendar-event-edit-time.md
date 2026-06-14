@@ -38,7 +38,7 @@
 
 ## 前提
 
-- `better-sqlite3` + WAL モード
+- `@libsql/client`（Turso/libSQL、`TURSO_DATABASE_URL` 未設定時は `file:./data.db` フォールバック）
 - カレンダー UI は `CalendarView.tsx` のみ
 - `id` は既にフロントに届いているので PUT/DELETE は id ベースで可能
 

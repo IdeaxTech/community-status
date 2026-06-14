@@ -5,7 +5,7 @@
 「現地に行かないと誰がいるか・会場が使えるかわからない」問題を、認証不要のチェックイン・お知らせ投稿と Discord Incoming Webhook 通知で解消する。
 
 要件詳細: [`requirements.md`](./requirements.md)
-最新プラン: [`docs/plans/active/2026-06-14-liquid-glass-ui.md`](./docs/plans/active/2026-06-14-liquid-glass-ui.md)
+最新プラン: [`docs/plans/archive/2026-06-14-liquid-glass-ui.md`](./docs/plans/archive/2026-06-14-liquid-glass-ui.md)
 
 ## 機能
 
@@ -26,7 +26,7 @@
 - **言語**: TypeScript（`strict: true`）
 - **スタイル**: Tailwind CSS + Liquid Glass デザイントークン（`src/app/globals.css` の `--bg` / `--bg-from` / `--bg-to` / `--glass` / `--glass-high` / `--glass-border` / `--card` / `--border` / `--text` / `--muted` CSS 変数、`.card` ユーティリティで `backdrop-filter: blur(24px) saturate(180%)` を適用、`prefers-color-scheme` でライト/ダーク自動切替、`prefers-reduced-motion` で `iridescent` / `glow-pulse` アニメーションを抑制）
 - **フォント**: `next/font/google` でセルフホストする Inter（外部 `@import` ではなくビルド時取り込み）
-- **永続化**: SQLite（`better-sqlite3`、WAL モード）
+- **永続化**: Turso / libSQL（`@libsql/client`、本番は HTTPS、ローカル/テストは `file:` プロトコルでフォールバック）
 - **通知**: Discord Incoming Webhook（`fetch` で直接 POST）+ クライアント側トースト（`useToast` / `Toaster`）
 - **テスト**: Vitest
 
@@ -43,7 +43,7 @@ src/
 │       ├── checkin/route.ts        # POST チェックイン / DELETE チェックアウト
 │       └── status/route.ts         # GET 参加者数・参加者一覧（attendees: {name, status}[]）
 ├── lib/
-│   ├── db.ts                       # SQLite 接続・スキーマ初期化・CRUD
+│   ├── db.ts                       # Turso/libSQL 接続・スキーマ初期化・CRUD（async）
 │   └── discord.ts                  # Webhook 通知（未設定時はノーオペ）
 ├── hooks/
 │   └── useToast.ts                 # トースト通知フック
@@ -87,32 +87,37 @@ npm test            # vitest run
 | 変数 | 必須 | デフォルト | 説明 |
 |------|------|-----------|------|
 | `DISCORD_WEBHOOK_URL` | 任意 | （未設定） | Discord Incoming Webhook URL。未設定時はお知らせ投稿時の通知をスキップする |
-| `DB_PATH` | 任意 | `./data.db` | SQLite データベースファイルのパス |
+| `TURSO_DATABASE_URL` | 任意（本番は必須） | `file:./data.db` | libSQL 接続 URL。本番では `libsql://<db>-<org>.turso.io` を指定する。未設定時はプロジェクトルートのローカル SQLite ファイルにフォールバックする |
+| `TURSO_AUTH_TOKEN` | 本番のみ必須 | （未設定） | Turso クラウドへの認証トークン。`file:` プロトコル時は不要 |
 
 `.env.local` および `*.db` / `*.db-shm` / `*.db-wal` は `.gitignore` で除外済み。
 
 ## データベース
 
-- 初回アクセス時に `better-sqlite3` が `DB_PATH` のファイルを作成し、`announcements` / `checkins` / `calendar_events` テーブルを `CREATE TABLE IF NOT EXISTS` で初期化する。
-- `journal_mode = WAL` を有効化。
+- 初回アクセス時に `@libsql/client` が `TURSO_DATABASE_URL`（未設定時は `file:./data.db`）へ接続し、`announcements` / `checkins` / `calendar_events` テーブルを `CREATE TABLE IF NOT EXISTS` で初期化する（`executeMultiple` で 1 ラウンドトリップ）。
+- スキーマ初期化は遅延・キャッシュされ、失敗時は次回呼び出しでリトライされる（`schemaReady` プロミスを失敗時に破棄する設計）。
+- すべての DB 関数は `async` で `Promise<T>` を返す。route handler 側は `await` 必須。
 - `checkins` の自動リセットは API ルート呼び出し時に `getCheckins()` が JST の今日でない行を `DELETE` する（cron 不要のレイジー方式）。
 - `checkins.status` カラム（`"at_venue"` / `"on_the_way"`）は `ALTER TABLE … ADD COLUMN` で既存 DB に追加（起動時に try-catch で冪等適用）。
 - `calendar_events.time` カラム（`HH:MM` 文字列、nullable）も同様に冪等マイグレーション済み。
 
 ## デプロイ
 
-SQLite を永続ファイルとして保持できる**セルフホスト環境**を推奨する（Railway / Fly.io / VPS / Docker など Node.js プロセスが常駐するサービス）。
+ネットワーク型 libSQL（**Turso**）を前提とする。Vercel / Cloudflare Workers / Fly.io / Railway / VPS など、Node.js が動く環境であれば構成は同じ。
 
 最小手順:
 
-1. リポジトリをデプロイ先にクローン or push。
-2. デプロイ環境の環境変数に `DISCORD_WEBHOOK_URL` を設定（任意）。永続ボリュームに合わせて `DB_PATH` を設定（例: `/data/data.db`）。
-3. `npm install && npm run build && npm run start` を実行する設定にする。
-4. `DB_PATH` が指す場所が永続ボリューム上にあることを確認する。
+1. Turso CLI でデータベースを作成し、URL とトークンを取得（`turso db create <name>` → `turso db show --url <name>` / `turso db tokens create <name>`）。
+2. リポジトリをデプロイ先にクローン or push。
+3. デプロイ環境の環境変数に以下を設定:
+   - `TURSO_DATABASE_URL`（必須、`libsql://...`）
+   - `TURSO_AUTH_TOKEN`（必須）
+   - `DISCORD_WEBHOOK_URL`（任意）
+4. `npm install && npm run build && npm run start` を実行する設定にする。
 
-### Vercel について
+### ローカル/セルフホスト時
 
-Vercel Serverless はインスタンス間でファイルシステムを共有しないため、`better-sqlite3` ベースの SQLite はインスタンス間でデータが揃わない。Vercel にデプロイする場合は Turso / LibSQL などのネットワーク型 SQLite、もしくは別の DB へ差し替える必要がある（プラン `設計決定` 参照）。
+`TURSO_DATABASE_URL` を未設定にすると `file:./data.db`（プロジェクトルートのローカル SQLite）にフォールバックする。永続ボリュームを持つセルフホスト環境ではこの形式でも運用可能。Vercel 等のサーバーレス環境ではファイルシステムが共有されない / 読み取り専用なので、必ず Turso クラウドに接続する。
 
 ## 開発フロー
 
