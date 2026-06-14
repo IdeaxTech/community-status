@@ -1,0 +1,17 @@
+name: Discord Notify
+
+on:
+  schedule:
+    # 木曜 13:00〜19:30 JST（UTC 04:00〜10:30）30分ごと
+    - cron: "0,30 4-10 * * 4"
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification
+        run: |
+          curl -sf -X POST "${{ secrets.APP_URL }}/api/discord-notify" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -o /dev/null \
+            -w "HTTP %{http_code}\n"
