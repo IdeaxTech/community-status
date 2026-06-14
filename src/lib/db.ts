@@ -32,12 +32,19 @@ function initSchema(database: Database.Database): void {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       date TEXT NOT NULL,
       title TEXT NOT NULL,
+      time TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `);
   // Migrate: add status column to existing checkins tables
   try {
     database.exec("ALTER TABLE checkins ADD COLUMN status TEXT NOT NULL DEFAULT 'at_venue'");
+  } catch {
+    // Column already exists — no-op
+  }
+  // Migrate: add time column to existing calendar_events tables
+  try {
+    database.exec("ALTER TABLE calendar_events ADD COLUMN time TEXT");
   } catch {
     // Column already exists — no-op
   }
@@ -93,17 +100,31 @@ export function removeCheckin(discordName: string): void {
 export function getCalendarEvents(
   year: number,
   month: number
-): { id: number; date: string; title: string }[] {
+): { id: number; date: string; title: string; time: string | null }[] {
   const prefix = `${String(year)}-${String(month).padStart(2, "0")}`;
   return getDb()
     .prepare(
-      "SELECT id, date, title FROM calendar_events WHERE date LIKE ? ORDER BY date ASC, id ASC"
+      "SELECT id, date, title, time FROM calendar_events WHERE date LIKE ? ORDER BY date ASC, time ASC, id ASC"
     )
-    .all(`${prefix}-%`) as { id: number; date: string; title: string }[];
+    .all(`${prefix}-%`) as { id: number; date: string; title: string; time: string | null }[];
 }
 
-export function addCalendarEvent(date: string, title: string): void {
+export function addCalendarEvent(date: string, title: string, time?: string): void {
   getDb()
-    .prepare("INSERT INTO calendar_events (date, title) VALUES (?, ?)")
-    .run(date, title);
+    .prepare("INSERT INTO calendar_events (date, title, time) VALUES (?, ?, ?)")
+    .run(date, title, time ?? null);
+}
+
+export function updateCalendarEvent(id: number, title: string, time: string | null): boolean {
+  const result = getDb()
+    .prepare("UPDATE calendar_events SET title = ?, time = ? WHERE id = ?")
+    .run(title, time, id);
+  return result.changes > 0;
+}
+
+export function deleteCalendarEvent(id: number): boolean {
+  const result = getDb()
+    .prepare("DELETE FROM calendar_events WHERE id = ?")
+    .run(id);
+  return result.changes > 0;
 }
