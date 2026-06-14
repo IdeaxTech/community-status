@@ -15,6 +15,9 @@
 - 日付（JST 0:00）が変わるとチェックインを自動リセット（レイジー方式）
 - お知らせ投稿時に Discord Incoming Webhook へ通知（投稿内容 + 現在の参加人数）
   - `DISCORD_WEBHOOK_URL` が未設定の場合は通知をスキップしてエラーにならない
+- 月次カレンダー表示（前月・次月ナビゲーション付き）
+  - 毎週木曜日に「もくもく会 13:00〜20:00」を自動表示（DB 非保存・クライアント側で日付計算）
+  - 日付セルをクリックして任意のイベントを追加可能（認証不要、title 100 文字以内）
 
 ## 技術スタック
 
@@ -34,6 +37,7 @@ src/
 │   ├── layout.tsx
 │   └── api/
 │       ├── announcements/route.ts  # GET 一覧 / POST 投稿 + Discord 通知
+│       ├── calendar/route.ts       # GET 月別イベント / POST イベント追加
 │       ├── checkin/route.ts        # POST チェックイン / DELETE チェックアウト
 │       └── status/route.ts         # GET 参加者数・名前一覧
 ├── lib/
@@ -43,7 +47,8 @@ src/
     ├── MainPage.tsx
     ├── StatusBoard.tsx
     ├── CheckinForm.tsx
-    └── AnnouncementForm.tsx
+    ├── AnnouncementForm.tsx
+    └── CalendarView.tsx              # 月次カレンダー UI
 ```
 
 ## ローカル実行

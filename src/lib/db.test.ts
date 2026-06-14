@@ -170,3 +170,106 @@ describe("date rollover (JST) check-in reset", () => {
     expect(names).toEqual(["alice", "bob"]);
   });
 });
+
+describe("calendar_events CRUD", () => {
+  it("returns empty array when no events exist for the month", async () => {
+    const db = await loadFreshDb();
+    expect(db.getCalendarEvents(2026, 6)).toEqual([]);
+  });
+
+  it("addCalendarEvent persists and getCalendarEvents returns the row", async () => {
+    const db = await loadFreshDb();
+    db.addCalendarEvent("2026-06-11", "もくもく会");
+    const rows = db.getCalendarEvents(2026, 6);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].date).toBe("2026-06-11");
+    expect(rows[0].title).toBe("もくもく会");
+    expect(typeof rows[0].id).toBe("number");
+  });
+
+  it("returns events sorted by date ASC then id ASC", async () => {
+    const db = await loadFreshDb();
+    // Insert out of order to verify ORDER BY.
+    db.addCalendarEvent("2026-06-20", "later");
+    db.addCalendarEvent("2026-06-01", "earlier");
+    db.addCalendarEvent("2026-06-15", "middle-a");
+    db.addCalendarEvent("2026-06-15", "middle-b");
+    const rows = db.getCalendarEvents(2026, 6);
+    expect(rows.map((r) => r.title)).toEqual([
+      "earlier",
+      "middle-a",
+      "middle-b",
+      "later",
+    ]);
+  });
+
+  it("scopes results to the requested year+month (month boundary)", async () => {
+    const db = await loadFreshDb();
+    // Surround June 2026 with events in adjacent months.
+    db.addCalendarEvent("2026-05-31", "May last");
+    db.addCalendarEvent("2026-06-01", "June first");
+    db.addCalendarEvent("2026-06-30", "June last");
+    db.addCalendarEvent("2026-07-01", "July first");
+
+    const june = db.getCalendarEvents(2026, 6);
+    expect(june.map((r) => r.date)).toEqual(["2026-06-01", "2026-06-30"]);
+
+    const may = db.getCalendarEvents(2026, 5);
+    expect(may.map((r) => r.date)).toEqual(["2026-05-31"]);
+
+    const july = db.getCalendarEvents(2026, 7);
+    expect(july.map((r) => r.date)).toEqual(["2026-07-01"]);
+  });
+
+  it("pads single-digit months so e.g. month=6 does not match month=06 only — and never matches month=12", async () => {
+    const db = await loadFreshDb();
+    db.addCalendarEvent("2026-06-15", "June");
+    db.addCalendarEvent("2026-12-15", "December");
+    // A naive LIKE "2026-6-%" would either over-match (matching nothing here)
+    // or accidentally match December if the prefix logic were "2026-1-%".
+    // Confirm the zero-padded prefix is correctly applied.
+    expect(db.getCalendarEvents(2026, 6).map((r) => r.title)).toEqual(["June"]);
+    expect(db.getCalendarEvents(2026, 12).map((r) => r.title)).toEqual([
+      "December",
+    ]);
+    expect(db.getCalendarEvents(2026, 1)).toEqual([]);
+  });
+
+  it("isolates by year (same month in different years)", async () => {
+    const db = await loadFreshDb();
+    db.addCalendarEvent("2025-06-15", "2025 event");
+    db.addCalendarEvent("2026-06-15", "2026 event");
+    expect(db.getCalendarEvents(2025, 6).map((r) => r.title)).toEqual([
+      "2025 event",
+    ]);
+    expect(db.getCalendarEvents(2026, 6).map((r) => r.title)).toEqual([
+      "2026 event",
+    ]);
+  });
+
+  it("handles leap year February (2024-02-29 is queryable)", async () => {
+    const db = await loadFreshDb();
+    db.addCalendarEvent("2024-02-29", "leap day");
+    db.addCalendarEvent("2024-02-01", "feb first");
+    const rows = db.getCalendarEvents(2024, 2);
+    expect(rows.map((r) => r.date)).toEqual(["2024-02-01", "2024-02-29"]);
+  });
+
+  it("preserves special characters in title", async () => {
+    const db = await loadFreshDb();
+    const title = "テスト 🎉 <script>alert('x')</script> \"quoted\" 'O\\'Brien'";
+    db.addCalendarEvent("2026-06-11", title);
+    expect(db.getCalendarEvents(2026, 6)[0].title).toBe(title);
+  });
+
+  it("allows multiple events on the same date", async () => {
+    const db = await loadFreshDb();
+    db.addCalendarEvent("2026-06-11", "first");
+    db.addCalendarEvent("2026-06-11", "second");
+    const rows = db.getCalendarEvents(2026, 6);
+    expect(rows).toHaveLength(2);
+    expect(rows.map((r) => r.title)).toEqual(["first", "second"]);
+    // Distinct ids.
+    expect(new Set(rows.map((r) => r.id)).size).toBe(2);
+  });
+});
