@@ -17,22 +17,27 @@ afterEach(() => {
 });
 
 describe("GET /api/status", () => {
-  it("returns zero count and empty names when no one is checked in", async () => {
+  it("returns zero count and empty attendees when no one is checked in", async () => {
     const { GET } = await import("./route");
     const res = GET();
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ count: 0, names: [] });
+    const body = await res.json() as { count: number; attendees: unknown[]; names: string[] };
+    expect(body.count).toBe(0);
+    expect(body.attendees).toEqual([]);
+    expect(body.names).toEqual([]);
   });
 
-  it("returns names and count after check-ins", async () => {
+  it("returns attendees and count after check-ins", async () => {
     const { addCheckin } = await import("@/lib/db");
     addCheckin("alice");
     addCheckin("bob");
     addCheckin("carol");
 
     const { GET } = await import("./route");
-    const body = (await GET().json()) as { count: number; names: string[] };
+    const body = (await GET().json()) as { count: number; attendees: { name: string; status: string }[]; names: string[] };
     expect(body.count).toBe(3);
+    expect(body.attendees.map((a) => a.name).sort()).toEqual(["alice", "bob", "carol"]);
+    expect(body.attendees.every((a) => a.status === "at_venue")).toBe(true);
     expect(body.names.sort()).toEqual(["alice", "bob", "carol"]);
   });
 
@@ -41,7 +46,8 @@ describe("GET /api/status", () => {
     addCheckin("日本語ユーザー🎉");
 
     const { GET } = await import("./route");
-    const body = (await GET().json()) as { count: number; names: string[] };
+    const body = (await GET().json()) as { count: number; attendees: { name: string }[]; names: string[] };
+    expect(body.attendees[0]?.name).toBe("日本語ユーザー🎉");
     expect(body.names).toEqual(["日本語ユーザー🎉"]);
   });
 });
