@@ -68,6 +68,16 @@ export function getAnnouncements(): { id: number; content: string; created_at: s
     .all() as { id: number; content: string; created_at: string }[];
 }
 
+export function getTodayAnnouncements(): { id: number; content: string; created_at: string }[] {
+  const today = todayJst();
+  // created_at is stored as UTC datetime; convert to JST date for comparison
+  return getDb()
+    .prepare(
+      "SELECT id, content, created_at FROM announcements WHERE date(created_at, '+9 hours') = ? ORDER BY id ASC"
+    )
+    .all(today) as { id: number; content: string; created_at: string }[];
+}
+
 export function addAnnouncement(content: string): void {
   getDb()
     .prepare("INSERT INTO announcements (content) VALUES (?)")
