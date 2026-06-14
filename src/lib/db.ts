@@ -1,7 +1,10 @@
 import Database from "better-sqlite3";
 import path from "path";
 
-const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), "data.db");
+// Vercel serverless: only /tmp is writable. Local: use project root.
+const DB_PATH = process.env.DB_PATH ?? (
+  process.env.VERCEL ? "/tmp/data.db" : path.join(process.cwd(), "data.db")
+);
 
 let db: Database.Database | null = null;
 
