@@ -24,7 +24,8 @@ function initSchema(database: Database.Database): void {
     CREATE TABLE IF NOT EXISTS checkins (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       discord_name TEXT NOT NULL UNIQUE,
-      date TEXT NOT NULL
+      date TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'at_venue'
     );
 
     CREATE TABLE IF NOT EXISTS calendar_events (
@@ -34,6 +35,12 @@ function initSchema(database: Database.Database): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `);
+  // Migrate: add status column to existing checkins tables
+  try {
+    database.exec("ALTER TABLE checkins ADD COLUMN status TEXT NOT NULL DEFAULT 'at_venue'");
+  } catch {
+    // Column already exists — no-op
+  }
 }
 
 function todayJst(): string {
@@ -60,23 +67,21 @@ export function addAnnouncement(content: string): void {
     .run(content);
 }
 
-export function getCheckins(): { discord_name: string }[] {
+export type CheckinStatus = "at_venue" | "on_the_way";
+
+export function getCheckins(): { discord_name: string; status: CheckinStatus }[] {
   const today = todayJst();
-  getDb()
-    .prepare("DELETE FROM checkins WHERE date != ?")
-    .run(today);
+  getDb().prepare("DELETE FROM checkins WHERE date != ?").run(today);
   return getDb()
-    .prepare("SELECT discord_name FROM checkins WHERE date = ?")
-    .all(today) as { discord_name: string }[];
+    .prepare("SELECT discord_name, status FROM checkins WHERE date = ? ORDER BY id ASC")
+    .all(today) as { discord_name: string; status: CheckinStatus }[];
 }
 
-export function addCheckin(discordName: string): void {
+export function addCheckin(discordName: string, status: CheckinStatus = "at_venue"): void {
   const today = todayJst();
   getDb()
-    .prepare(
-      "INSERT OR REPLACE INTO checkins (discord_name, date) VALUES (?, ?)"
-    )
-    .run(discordName, today);
+    .prepare("INSERT OR REPLACE INTO checkins (discord_name, date, status) VALUES (?, ?, ?)")
+    .run(discordName, today, status);
 }
 
 export function removeCheckin(discordName: string): void {
